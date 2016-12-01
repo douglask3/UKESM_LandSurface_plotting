@@ -10,7 +10,7 @@ running_mean = False
 kg2g = 1000.0
 kgyr2gmon = 1000.0 / 12.0
 
-## Soils
+## Soils and veg
 soil_fignm = 'soilVeg'
 soil_title = 'SOIL_VEG_CARBON_POOL'
 soil_units = 'g m-2'
@@ -42,8 +42,8 @@ WdFl_cmap  = 'brewer_BrBG_11'
 Flux_fignm = 'Fluxes'
 Flux_title = 'FLUXES'
 Flux_units = 'g m-2'
-Flux_names = ['NPP'       , 'Resp', 'Wood_prod']
-Flux_codes = ['m01s19i102', 'm01s19i011', 'm01s19i010']
+Flux_names = ['NPP'       , 'Resp']
+Flux_codes = ['m01s19i102', 'm01s19i011']
 Flux_scale = kgyr2gmon * np.array([1.0, -1.0, -1.0])
 Flux_cmap  = 'brewer_BrBG_11'
 
@@ -145,6 +145,7 @@ wood = change_in_store(wood)
 
 
 flux.data = -flux.data
+wdfl.data = -wdfl.data
 flux = accumulate_flux(flux)
 wdfl = accumulate_flux(wdfl)
 
@@ -155,3 +156,8 @@ open_plot_and_return('overall', 'overall', cmap = cmap, dat = [soil, wood, wdfl,
 open_plot_and_return('SoilVegAndFluxes', 'Soil and fluxes',
                      cmap = ['brewer_RdYlBu_11', Flux_cmap, 'brewer_RdYlBu_11'], 
                      dat = [soil,flux])
+
+
+open_plot_and_return('WoodPoolsFlux', 'Wood pools and fluxes',
+                     cmap = ['brewer_PuOr_11', Flux_cmap, 'brewer_RdYlBu_11'], 
+                     dat = [wood, wdfl])
