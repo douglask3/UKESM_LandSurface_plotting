@@ -17,12 +17,14 @@ from   pdb   import set_trace as browser
 #############################################################################
 
 class open_plot_return(object):
-    def __init__(self, files, running_mean):   
+    def __init__(self, files = None, dat = None, running_mean = False):   
         self.files = files
+        self.dat   = dat
         self.running_mean = running_mean
 
 
-    def load_group(self, codes, names, dat = None, scale = None, **kw):
+    def load_group(self, codes, names, scale = None, **kw):
+        dat = self.dat
         if (dat is None):        
             dat = [load_stash(self.files, code, name, **kw) for code, name in zip(codes, names)]
         
