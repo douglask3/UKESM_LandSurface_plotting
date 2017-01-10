@@ -59,8 +59,8 @@ from libs.open_plot_return import *
 ## Run                                                                     ##
 #############################################################################
 files = sort(listdir_path(data_dir + mod_out))
-browser()
-opr = open_plot_return(files, running_mean)
+
+opr = open_plot_return(files, running_mean = running_mean)
 
 soil = opr.open_plot_and_return(soil_fignm, soil_title, soil_codes, soil_names,  soil_units, soil_cmap, scale = soil_scale)
 
@@ -89,13 +89,3 @@ wdfl = accumulate_flux(wdfl)
 
 cmap = ['brewer_RdYlBu_11', 'brewer_PuOr_11', Flux_cmap, Flux_cmap,  'brewer_RdYlBu_11']
 
-opr.open_plot_and_return('overall', 'overall', cmap = cmap, dat = [soil, wood, wdfl, flux])
-
-opr.open_plot_and_return('SoilVegAndFluxes', 'Soil and fluxes',
-                     cmap = ['brewer_RdYlBu_11', Flux_cmap, 'brewer_RdYlBu_11'], 
-                     dat = [soil,flux])
-
-
-opr.open_plot_and_return('WoodPoolsFlux', 'Wood pools and fluxes',
-                     cmap = ['brewer_PuOr_11', Flux_cmap, 'brewer_RdYlBu_11'], 
-                     dat = [wood, wdfl])
