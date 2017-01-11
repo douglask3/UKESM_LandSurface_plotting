@@ -1,8 +1,8 @@
 import ConfigParser
 import json
+import sys
 
 from libs.open_plot_return import *
-
 
 def ConfigGetList(type = '', *arg):
     var = Config.get(*arg)
@@ -17,7 +17,7 @@ def ConfigGetList(type = '', *arg):
         return var
 
 Config = ConfigParser.ConfigParser()
-Config.read("look_at_carbon.ini")
+Config.read(sys.argv[1])
 
 dir          = Config.get("FileInfo", "dir"         )
 running_mean = Config.get("FileInfo", "running_mean")
