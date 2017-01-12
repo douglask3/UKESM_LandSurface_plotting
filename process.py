@@ -2,7 +2,9 @@ import ConfigParser
 import json
 import sys
 from   pdb   import set_trace as browser
-#from libs.open_plot_return import *
+from   libs.open_plot_return import *
+from libs.grab_data import grab_data
+
 
 def ConfigGetList(type = '', *arg):
     var = Config.get(*arg)
@@ -28,22 +30,26 @@ def ConfigGetDefault(section, field, type = '', default = None):
 Config = ConfigParser.ConfigParser()
 Config.read(sys.argv[1])
 
-browser()
-dir          = ConfigGetDefault("FileInfo", "dir"         )
+
+datDir       = ConfigGetDefault("FileInfo", "dir"         )
 job          = ConfigGetDefault("FileInfo", "job"         )
 stream       = ConfigGetDefault("FileInfo", "stream"      )
 running_mean = ConfigGetDefault("FileInfo", "running_mean", 'boolean', False)
 
-if (dir is None):
-    if (job is None || stream is None):
+if (datDir is None):
+    if (job is None or stream is None):
         sys.exit('either a local dir for ESM output, or a suite code and ouput stream need to be defined')
-    dir = 'data/' + job + '/' + stream + '/'
+    datDir = 'data/' + job + '/' + stream + '/'
     ## collect stash codes
-    browser()
-    
-    grab_data(job, stream, codes, dir)    
+    stash = []
+    for i in Config.sections():
+        newStash = ConfigGetDefault(i, "VarStashCodes")
+        if (newStash is not None): stash.extend(newStash)
 
-files = sort(listdir_path(dir))
+    grab_data(job, stream, stash, datDir)    
+
+browser()
+files = sort(listdir_path(datDir))
 opr   = open_plot_return(files, running_mean = running_mean)
 
 for section in Config.sections():
