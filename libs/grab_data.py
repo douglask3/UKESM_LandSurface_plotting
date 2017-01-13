@@ -27,5 +27,6 @@ def grab_data(job, stream, codes, dir = 'data/'):
     file.write(filter)
     file.close()
     
+    os.system('rm -r data/') 
     makeDir(dir) 
     os.system('moo select ' + fname + ' moose://crum/' + job + '/' + stream + '.pp/ ' + dir)
