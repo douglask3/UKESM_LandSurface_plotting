@@ -41,7 +41,8 @@ running_mean = ConfigGetDefault("FileInfo", "running_mean", 'boolean', False)
 if (datDir is None):
     if (job is None or stream is None):
         sys.exit('either a local dir for ESM output, or a suite code and ouput stream need to be defined')
-    datDir = 'data/' + job + '/' + stream + '/'
+    
+    datDir = 'data/' + job + '/'
     ## collect stash codes
     stash = []
     for i in Config.sections():
@@ -50,8 +51,7 @@ if (datDir is None):
 
     grab_data(job, stream, stash, datDir)    
 
-files = sort(listdir_path(datDir))
-opr   = open_plot_return(files, running_mean = running_mean)
+
 
 for section in Config.sections():
     if (section == 'FileInfo' or section == 'MachineInfo'): continue
@@ -63,7 +63,15 @@ for section in Config.sections():
     VarNames      =  ConfigGetList(''     , section, "VarNames"     )
     VarStashCodes =  ConfigGetList(''     , section, "VarStashCodes")
     VarScaling    =  ConfigGetList('float', section, "VarScaling"   )
-
+ 
+    Stream     =  ConfigGetDefault(section, "Stream")
+    if (Stream is not None):
+        datDirt = datDir + Stream + '/'
+    else:
+        datDirt = datDir
+        
+    files = sort(listdir_path(datDirt))
+    opr   = open_plot_return(files, running_mean = running_mean)
     opr.open_plot_and_return(FigName, FigTitle, VarStashCodes, VarNames,  FigUnits, FigCmap, scale = VarScaling)
 
 

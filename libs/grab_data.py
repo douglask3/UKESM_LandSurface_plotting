@@ -9,12 +9,12 @@ def makeDir(filename):
             if exc.errno != errno.EEXIST:
                 raise
 
-def grab_data(job, stream, codes, dir = 'data/'):
+def grab_data(job, stream, codes, dir = None):
     #remove m01, s and i from codes    
     codes = [i.replace('m01', '') for i in codes]   
     codes = [i.replace(  'i', '') for i in codes]   
     codes = [i.replace(  's', '') for i in codes]
-    ## make filter
+    
     filter = 'begin \n\t stash = ('    
     for i in codes: filter += i + ', '
     filter = filter[:-2]
@@ -27,6 +27,17 @@ def grab_data(job, stream, codes, dir = 'data/'):
     file.write(filter)
     file.close()
     
-    os.system('rm -r data/') 
-    makeDir(dir) 
-    os.system('moo select ' + fname + ' moose://crum/' + job + '/' + stream + '.pp/ ' + dir)
+    if (not isinstance(stream, list)): stream = [stream]
+    
+    if (dir is not None): os.system('rm -r ' + dir) 
+    
+    for st in stream:
+        if (dir is None):
+            dirt = 'data/' + job + '/' + st + '/'
+            
+            os.system('rm -r ' + dirt) 
+        else:
+            dirt = dir + st + '/'
+
+        makeDir(dirt) 
+        os.system('moo select ' + fname + ' moose://crum/' + job + '/' + st + '.pp/ ' + dirt)
