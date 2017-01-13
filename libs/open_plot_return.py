@@ -1,4 +1,3 @@
-import libs.import_iris #comment out this line if not run on CEH linux box
 import iris
 
 from   pylab import sort      

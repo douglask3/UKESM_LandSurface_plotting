@@ -2,8 +2,7 @@ import ConfigParser
 import json
 import sys
 from   pdb   import set_trace as browser
-from   libs.open_plot_return import *
-from libs.grab_data import grab_data
+from   libs.grab_data import grab_data
 
 
 def ConfigGetList(type = '', *arg):
@@ -30,6 +29,9 @@ def ConfigGetDefault(section, field, type = '', default = None):
 Config = ConfigParser.ConfigParser()
 Config.read(sys.argv[1])
 
+ceh          = ConfigGetDefault("MachineInfo", "ceh", "boolean", False)
+if (ceh): import libs.import_iris
+from   libs.open_plot_return import *
 
 datDir       = ConfigGetDefault("FileInfo", "dir"         )
 job          = ConfigGetDefault("FileInfo", "job"         )
@@ -48,12 +50,11 @@ if (datDir is None):
 
     grab_data(job, stream, stash, datDir)    
 
-browser()
 files = sort(listdir_path(datDir))
 opr   = open_plot_return(files, running_mean = running_mean)
 
 for section in Config.sections():
-    if (section == 'FileInfo'): continue
+    if (section == 'FileInfo' or section == 'MachineInfo'): continue
     
     FigName       =  ConfigGetList(''     , section, "FigName"      )
     FigTitle      =  ConfigGetList(''     , section, "FigTitle"     )
