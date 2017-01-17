@@ -8,6 +8,7 @@ from   libs.plot_maps    import *
 from   libs.plot_TS      import *
 from   libs.listdir_path import *
 from   libs.load_stash   import *
+from   libs.grab_data    import makeDir
 
 from   pdb   import set_trace as browser
 
@@ -70,6 +71,7 @@ class open_plot_return(object):
                              cmap = 'brewer_Greys_09', **kw):
     
         fig_name = 'figs/' + figName + '.pdf'
+        makeDir(fig_name)
         git = 'repo: ' + git_info.url + '\n' + 'rev:  ' + git_info.rev
    
         dat = self.load_group(codes, names, units = units, **kw)

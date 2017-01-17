@@ -34,10 +34,9 @@ ceh          = ConfigGetDefault("MachineInfo", "ceh", False, "boolean")
 if (ceh): import libs.import_iris
 from   libs.open_plot_return import *
 
-makeDir('figs/')
-
 datDir       = ConfigGetDefault("FileInfo", "dir"         )
 job          = ConfigGetDefault("FileInfo", "job"         )
+jdir         = ConfigGetDefault("FileInfo", "subDir"      )
 stream       = ConfigGetDefault("FileInfo", "Stream"      )
 grab         = ConfigGetDefault("FileInfo", "grab"        , True,  "boolean")
 running_mean = ConfigGetDefault("FileInfo", "running_mean", False, 'boolean')
@@ -46,13 +45,13 @@ if (datDir is None):
     if (job is None or stream is None):
         sys.exit('either a local dir for ESM output, or a suite code and ouput stream need to be defined')
     
-    datDir = 'data/' + job + '/'
+    datDir = 'data/' + job + '/' + jdir + '/'
     ## collect stash codes
     stash = []
     for i in Config.sections():
         newStash = ConfigGetDefault(i, "VarStashCodes", asList = True)
         if (newStash is not None): stash.extend(newStash)
-       
+    
     if (grab): grab_data(job, stream, stash, datDir)    
 
 
@@ -76,6 +75,7 @@ for section in Config.sections():
         datDirt = datDir
         
     files = sort(listdir_path(datDirt))
+    FigName = jdir + '/' + FigName
     opr   = open_plot_return(files, total = Total, running_mean = running_mean)
     opr.open_plot_and_return(FigName, FigTitle, VarStashCodes, VarNames,  FigUnits, FigCmap, scale = VarScaling)
 
