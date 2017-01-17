@@ -21,7 +21,7 @@ class open_plot_return(object):
         self.files = files
         self.dat   = dat
         self.total = total
-        self.running_mean = running_mean
+        self.running_mean = running_mean  
 
 
     def load_group(self, codes, names, scale = None, **kw):
@@ -51,7 +51,7 @@ class open_plot_return(object):
         return dat
 
 
-    def plot_cubes(self, cubes, title, *args):
+    def plot_cubes(self, cubes, title, TSMean, *args):
         nplots = len(cubes)    
         plot_cubes_map(cubes, *args)  
         
@@ -62,12 +62,13 @@ class open_plot_return(object):
             N = nplots - 1
             p = 4
         plt.subplot(max([1, nplots - 1]), 2, 2)
-        plot_cube_TS(cubes, self.running_mean)      
+        plot_cube_TS(cubes, self.running_mean, TSMean)      
     
         plt.gcf().suptitle(title, fontsize=18, fontweight='bold')
  
     def open_plot_and_return(self, figName, title,
                              codes = None, names = None,  units  = None,
+                             TSMean = False,
                              cmap = 'brewer_Greys_09', **kw):
     
         fig_name = 'figs/' + figName + '.pdf'
@@ -77,7 +78,7 @@ class open_plot_return(object):
         dat = self.load_group(codes, names, units = units, **kw)
         
         plt.figure(figsize = (15, 5 * max([1, len(dat) - 1])))
-        self.plot_cubes(dat, title, cmap)
+        self.plot_cubes(dat, title, TSMean, cmap)
 
         plt.gcf().text(.05, .95, git, rotation = 90)
         plt.savefig(fig_name)
