@@ -29,6 +29,8 @@ def running_N_mean(l, N):
     return result
 
 def cube_TS(cube, running_mean = False, mean = False):
+    cube.data =  np.ma.masked_invalid(cube.data)
+
     grid_areas = grid_area(cube)
     collapseFun = iris.analysis.MEAN if mean else iris.analysis.SUM
     cube = cube.collapsed(['latitude', 'longitude'], collapseFun, weights = grid_areas)
@@ -42,7 +44,7 @@ def plot_cube_TS(cubes, running_mean, mean):
     
     for cube in cubes: iplt.plot(cube, label = cube.name())
     plt.ylabel('g C')
-
+    
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
           fancybox=True, shadow=True, ncol=len(cubes))
 
