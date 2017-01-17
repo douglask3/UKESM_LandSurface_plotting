@@ -40,4 +40,9 @@ def grab_data(job, stream, codes, dir = None):
             dirt = dir + st + '/'
 
         makeDir(dirt) 
-        os.system('moo select ' + fname + ' moose://crum/' + job + '/' + st + '.pp/ ' + dirt)
+        if (st[-5:] == '.file'): st = st + '/'
+        else: st = st + '.pp/' 
+        
+        command = 'moo select ' + fname + ' moose://crum/' + job + '/' + st + ' ' + dirt
+        print(command)
+        os.system(command)
