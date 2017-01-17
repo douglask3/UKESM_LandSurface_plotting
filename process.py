@@ -2,7 +2,7 @@ import ConfigParser
 import json
 import sys
 from   pdb   import set_trace as browser
-from   libs.grab_data import grab_data
+from   libs.grab_data import *
 
 
 def ConfigGetList(section, field, type = '', asList = False, *arg):
@@ -33,6 +33,8 @@ Config.read(sys.argv[1])
 ceh          = ConfigGetDefault("MachineInfo", "ceh", False, "boolean")
 if (ceh): import libs.import_iris
 from   libs.open_plot_return import *
+
+makeDir('figs/')
 
 datDir       = ConfigGetDefault("FileInfo", "dir"         )
 job          = ConfigGetDefault("FileInfo", "job"         )

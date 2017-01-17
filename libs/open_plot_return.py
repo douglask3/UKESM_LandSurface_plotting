@@ -69,7 +69,7 @@ class open_plot_return(object):
                              codes = None, names = None,  units  = None,
                              cmap = 'brewer_Greys_09', **kw):
     
-        fig_name = '' + figName + '.pdf'
+        fig_name = 'figs/' + figName + '.pdf'
         git = 'repo: ' + git_info.url + '\n' + 'rev:  ' + git_info.rev
    
         dat = self.load_group(codes, names, units = units, **kw)
