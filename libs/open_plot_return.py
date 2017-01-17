@@ -81,7 +81,7 @@ class open_plot_return(object):
         self.plot_cubes(dat, title, TSMean, cmap)
 
         plt.gcf().text(.05, .95, git, rotation = 90)
-        plt.savefig(fig_name)
+        plt.savefig(fig_name, bbox_inches='tight')
     
         dat[-1].long_name = title
     
