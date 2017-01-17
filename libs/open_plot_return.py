@@ -16,9 +16,10 @@ from   pdb   import set_trace as browser
 #############################################################################
 
 class open_plot_return(object):
-    def __init__(self, files = None, dat = None, running_mean = False):   
+    def __init__(self, files = None, dat = None, total = False, running_mean = False):   
         self.files = files
         self.dat   = dat
+        self.total = total
         self.running_mean = running_mean
 
 
@@ -27,29 +28,39 @@ class open_plot_return(object):
         if (dat is None):        
             dat = [load_stash(self.files, code, name, **kw) for code, name in zip(codes, names)]
         
+        dat = [i for i in dat if i is not None]
         for i in range(0, len(dat)):
                 if (dat[i].coords()[0].long_name == 'pseudo_level'):
                     print('warning: ' + names[i] + ' has pseudo_levels')
                     dat[i] = dat[i].collapsed('pseudo_level', iris.analysis.MEAN)             
-    
+        
         if (scale is not None):
-            for i in range(0, len(dat)):  dat[i].data = dat[i].data * scale[i]    
-   
-        tot = dat[0].copy()
-        for i in dat[1:]: tot.data += i.data
+            for i in range(0, len(dat)): 
+                sc = scale[i] if scale is list else scale
+                dat[i].data = dat[i].data * sc   
+        
+        if (self.total):
+            tot = dat[0].copy()
+            for i in dat[1:]: tot.data += i.data
 
-        tot.var_name  = 'total'
-        tot.long_name = 'total'   
-        dat.append(tot)
-    
+            tot.var_name  = 'total'
+            tot.long_name = 'total'   
+            dat.append(tot)
+        
         return dat
 
 
     def plot_cubes(self, cubes, title, *args):
         nplots = len(cubes)    
         plot_cubes_map(cubes, *args)  
-    
-        plt.subplot(nplots - 1, 2, 4)
+        
+        if (nplots == 1):
+            N = 1
+            p = 2
+        else:
+            N = nplots - 1
+            p = 4
+        plt.subplot(max([1, nplots - 1]), 2, 2)
         plot_cube_TS(cubes, self.running_mean)      
     
         plt.gcf().suptitle(title, fontsize=18, fontweight='bold')
@@ -62,8 +73,8 @@ class open_plot_return(object):
         git = 'repo: ' + git_info.url + '\n' + 'rev:  ' + git_info.rev
    
         dat = self.load_group(codes, names, units = units, **kw)
-    
-        plt.figure(figsize = (15, 5 * (len(dat) - 1)))
+        
+        plt.figure(figsize = (15, 5 * max([1, len(dat) - 1])))
         self.plot_cubes(dat, title, cmap)
 
         plt.gcf().text(.05, .95, git, rotation = 90)
@@ -71,6 +82,5 @@ class open_plot_return(object):
     
         dat[-1].long_name = title
     
-        return dat[-1]
-
+        if (self.total): return dat[-1]
  
