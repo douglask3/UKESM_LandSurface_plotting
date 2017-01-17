@@ -3,43 +3,21 @@ import json
 import sys
 from   pdb   import set_trace as browser
 from   libs.grab_data import *
+from   libs.ConfigGet import ConfigGet
 
+Config = ConfigGet(sys.argv[1])
 
-def ConfigGetList(section, field, type = '', asList = False, *arg):
-    var = Config.get(section, field, *arg)
-    var = [e.strip() for e in var.split(',')]
+ceh          = Config.Default("MachineInfo", "ceh", False, "boolean")
 
-    ## replace with something shorter and cleverer
-    if (type == 'float'  ): var = [float  (i) for i in var]
-    if (type == 'boolean'):
-        var = [i == 'True' for i in var]
-    
-    if (len(var) == 1 and not asList):
-        return var[0]
-    else:
-        return var
-
-def ConfigGetDefault(section, field, default = None, type = '', *arg, **kw):
-    try:
-        var = ConfigGetList(section, field, type, *arg, **kw)
-    except:
-        if (default == 'required'): sys.exit('Default required: ' + section + ': ' + field)
-        var = default
-    return var
-
-Config = ConfigParser.ConfigParser()
-Config.read(sys.argv[1])
-
-ceh          = ConfigGetDefault("MachineInfo", "ceh", False, "boolean")
 if (ceh): import libs.import_iris
 from   libs.open_plot_return import *
 
-datDir       = ConfigGetDefault("FileInfo", "dir"         )
-job          = ConfigGetDefault("FileInfo", "job"         )
-jdir         = ConfigGetDefault("FileInfo", "subDir"      )
-stream       = ConfigGetDefault("FileInfo", "Stream"      )
-grab         = ConfigGetDefault("FileInfo", "grab"        , True,  "boolean")
-running_mean = ConfigGetDefault("FileInfo", "running_mean", False, 'boolean')
+datDir       = Config.Default("FileInfo", "dir"         )
+job          = Config.Default("FileInfo", "job"         )
+jdir         = Config.Default("FileInfo", "subDir"      )
+stream       = Config.Default("FileInfo", "Stream"      )
+grab         = Config.Default("FileInfo", "grab"        , True,  "boolean")
+running_mean = Config.Default("FileInfo", "running_mean", False, 'boolean')
 
 if (datDir is None):
     if (job is None or stream is None):
@@ -49,7 +27,7 @@ if (datDir is None):
     ## collect stash codes
     stash = []
     for i in Config.sections():
-        newStash = ConfigGetDefault(i, "VarStashCodes", asList = True)
+        newStash = Config.Default(i, "VarStashCodes", asList = True)
         if (newStash is not None): stash.extend(newStash)
     
     if (grab): grab_data(job, stream, stash, datDir)    
@@ -59,15 +37,15 @@ if (datDir is None):
 for section in Config.sections():
     if (section == 'FileInfo' or section == 'MachineInfo'): continue
     
-    FigName       =  ConfigGetDefault(section, "FigName"      , section          )
-    FigTitle      =  ConfigGetDefault(section, "FigTitle"     , section          )
-    FigUnits      =  ConfigGetDefault(section, "FigUnits"                        )
-    FigCmap       =  ConfigGetDefault(section, "FigCmap"      , "brewer_Greys_09")
-    VarNames      =  ConfigGetDefault(section, "VarNames"     , 'required'       , asList = True)
-    VarStashCodes =  ConfigGetDefault(section, "VarStashCodes", "required"       , asList = True)
-    VarScaling    =  ConfigGetDefault(section, "VarScaling"   , 1.0  , "float"   )
-    Total         =  ConfigGetDefault(section, "Total"        , False, "boolean" )
-    Stream        =  ConfigGetDefault(section, "Stream"                          )
+    FigName       =  Config.Default(section, "FigName"      , section          )
+    FigTitle      =  Config.Default(section, "FigTitle"     , section          )
+    FigUnits      =  Config.Default(section, "FigUnits"                        )
+    FigCmap       =  Config.Default(section, "FigCmap"      , "brewer_Greys_09")
+    VarNames      =  Config.Default(section, "VarNames"     , 'required'       , asList = True)
+    VarStashCodes =  Config.Default(section, "VarStashCodes", "required"       , asList = True)
+    VarScaling    =  Config.Default(section, "VarScaling"   , 1.0  , "float"   )
+    Total         =  Config.Default(section, "Total"        , False, "boolean" )
+    Stream        =  Config.Default(section, "Stream"                          )
     
     if (Stream is not None):
         datDirt = datDir + Stream + '/'
