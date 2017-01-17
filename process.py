@@ -8,7 +8,6 @@ from   libs.ConfigGet import ConfigGet
 Config = ConfigGet(sys.argv[1])
 
 ceh          = Config.Default("MachineInfo", "ceh", False, "boolean")
-
 if (ceh): import libs.import_iris
 from   libs.open_plot_return import *
 
@@ -46,12 +45,11 @@ for section in Config.sections():
     Stream        =  Config.Default(section, "Stream"                          )
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
     
-    if (Stream is not None):
-        datDirt = datDir + Stream + '/'
-    else:
-        datDirt = datDir
+    if (Stream is not None): datDirt = datDir + Stream + '/'
+    else: datDirt = datDir
         
     files = sort(listdir_path(datDirt))
+    
     FigName = jdir + '/' + FigName
     opr   = open_plot_return(files, total = Total, running_mean = running_mean)
     opr.open_plot_and_return(FigName, FigTitle, VarStashCodes, VarNames,  FigUnits, FigTSMean, FigCmap, scale = VarScaling)
