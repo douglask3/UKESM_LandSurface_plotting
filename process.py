@@ -32,8 +32,6 @@ if (datDir is None):
     
     if (grab): grab_data(job, stream, stash, datDir)    
 
-
-
 for section in Config.sections():
     if (section == 'FileInfo' or section == 'MachineInfo'): continue
     
