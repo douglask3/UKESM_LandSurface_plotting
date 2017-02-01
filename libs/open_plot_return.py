@@ -17,18 +17,18 @@ from   pdb   import set_trace as browser
 #############################################################################
 
 class open_plot_return(object):
-    def __init__(self, files = None, dat = None, total = False, running_mean = False):   
-        self.files = files
-        self.dat   = dat
-        self.total = total
-        self.running_mean = running_mean  
-
-
-    def load_group(self, codes, lbelvs, names, scale = None, **kw):
-        dat = self.dat
+    def __init__(self, files = None, codes = None, lbelv = None, names = None,
+                 units  = None, dat = None, total = False, **kw): 
         if (dat is None):
-            if (len(codes) == 1): codes = [codes[0] for i in names]     
-            dat = [load_stash(self.files, code, lbelv, name, **kw) for code, lbelv, name in zip(codes, lbelvs, names)]
+            self.dat = self.load_group(files, codes, lbelv, names, total, units = units, **kw)
+        else:
+            self.dat = dat 
+
+
+    def load_group(self, files, codes, lbelvs, names,total = False, scale = None, **kw):
+        
+        if (len(codes) == 1): codes = [codes[0] for i in names]     
+        dat = [load_stash(files, code, lbelv, name, **kw) for code, lbelv, name in zip(codes, lbelvs, names)]
         
         dat = [i for i in dat if i is not None]
         for i in range(0, len(dat)):
@@ -41,7 +41,7 @@ class open_plot_return(object):
                 sc = scale[i] if scale is list else scale
                 dat[i].data = dat[i].data * sc   
         
-        if (self.total):
+        if (total):
             tot = dat[0].copy()
             for i in dat[1:]: tot.data += i.data
 
@@ -50,24 +50,30 @@ class open_plot_return(object):
             dat.append(tot)
         
         return dat
+    
+    def plot_setup(self):
+        nplots = len(self.dat)
 
-
-    def plot_cubes(self, cubes, figName, title, TSMean, *args):
-        nplots = len(cubes)   
-        
         if (nplots == 1):
             N = 2
             M = 1
-            p = 2
         else:
             N = int(nplots**0.5) + 1
             M = round(nplots/float(N))
-            p = 4
+
         plt.figure(figsize = (3 * N, 6 * M))
-        plot_cubes_map(cubes, N, M, *args)        
+
+        return N, M
+
+    def plot_cubes(self, figName, title, TSMean = False, running_mean= False,
+                   cmap = 'brewer_Greys_09', *args):   
+       
+        N, M = self.plot_setup()
+        
+        plot_cubes_map(self.dat, N, M, cmap = cmap, *args)        
 
         plt.subplot(N, 1, N)
-        plot_cube_TS(cubes, self.running_mean, TSMean)      
+        plot_cube_TS(self.dat, running_mean, TSMean)      
     
         plt.gcf().suptitle(title, fontsize=18, fontweight='bold')
 
@@ -77,16 +83,7 @@ class open_plot_return(object):
         figName = 'figs/' + figName + '.png'
         makeDir(figName)
         plt.savefig(figName, bbox_inches='tight')
+
+        return self.dat
  
-    def open_plot_and_return(self, figName, title,
-                             codes = None, lbelv = None, names = None,  units  = None,
-                             TSMean = False,
-                             cmap = 'brewer_Greys_09', **kw):
-           
-        dat = self.load_group(codes, lbelv, names, units = units, **kw)
-        
-        self.plot_cubes(dat, figName, title, TSMean, cmap)
-        
-        dat[-1].long_name = title
-        if (self.total): return dat[-1]
- 
+
