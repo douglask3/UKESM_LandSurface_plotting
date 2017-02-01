@@ -17,7 +17,7 @@ def load_stash(files, code, lbelv, name, units = None):
     stash_constraint = iris.AttributeConstraint(STASH = code)
     
     try:
-        cube = iris.load_cube(files[0:2], stash_constraint)
+        cube = iris.load_cube(files, stash_constraint)
         
         if (lbelv is not None):
             index = np.where(cube.coord('pseudo_level').points == lbelv)[0]
