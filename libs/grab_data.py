@@ -15,11 +15,13 @@ def grab_data(job, stream, codes, dir = None):
     codes = [i.replace(  'i', '') for i in codes]   
     codes = [i.replace(  's', '') for i in codes]
     
-    filter = 'begin \n\t stash = ('    
+   
+    filter = 'begin \n\t stash = '
+    if len(codes) != 1: filter += '('    
     for i in codes: filter += i + ', '
     filter = filter[:-2]
-    filter += ') \n end'
-        
+    if len(codes) != 1: filer += ')'
+    filter += ' \n end'
     
     fname = 'temp/filter.fl'
     makeDir(fname)
