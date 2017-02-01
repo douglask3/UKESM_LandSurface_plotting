@@ -67,11 +67,11 @@ class open_plot_return(object):
         return N, M
 
     def plot_cubes(self, figName, title, TSMean = False, running_mean= False,
-                   cmap = 'brewer_Greys_09', *args):   
+                   levels = None, cmap = 'brewer_Greys_09', *args):   
        
         N, M = self.plot_setup()
         
-        plot_cubes_map(self.dat, N, M, cmap = cmap, *args)        
+        plot_cubes_map(self.dat, N, M, levels, cmap = cmap, *args)        
 
         plt.subplot(N, 1, N)
         plot_cube_TS(self.dat, running_mean, TSMean)      

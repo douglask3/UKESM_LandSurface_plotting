@@ -11,19 +11,21 @@ from to_precision import *
 from pdb import set_trace as browser
 from numpy import inf
 
-def hist_limits(dat, nlims, symmetrical = True):
-    nlims0 = nlims
-    for p in range(0,100 - nlims0):
-        nlims = nlims0 + p
+def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
+    if (lims is None):
+        nlims0 = nlims
+        for p in range(0,100 - nlims0):
+            nlims = nlims0 + p
         
-        lims = np.percentile(dat.data[~np.isnan(dat.data)], range(0, 100, 100/nlims))
-        #lims = lims[lims != -inf]
-        if (lims[0]==-inf): lims.pop(0)
+            lims = np.percentile(dat.data[~np.isnan(dat.data)], range(0, 100, 100/nlims))
+            #lims = lims[lims != -inf]
+            if (lims[0]==-inf): lims.pop(0)
             
-        lims = [to_precision(i, 2) for i in lims]
-        lims = np.unique(lims)
-        if (len(lims) >= nlims0): break
-   
+            lims = [to_precision(i, 2) for i in lims]
+            lims = np.unique(lims)
+            if (len(lims) >= nlims0): break
+    else:
+        nlims = len(lims) + 1
     if (lims[0] < 0.0):        
         if (sum(lims <0.0) > sum(lims >0.0)):
             lims = lims[lims < 0.0]
@@ -37,7 +39,7 @@ def hist_limits(dat, nlims, symmetrical = True):
     return (lims, extend)
 
 
-def plot_cube(cube, N, M, n, cmap):
+def plot_cube(cube, N, M, n, levels = None, cmap = 'brewer_Greys_09'):
    
     plt.subplot(N, M, n, projection=ccrs.Robinson())
     print cube.name()
@@ -47,7 +49,7 @@ def plot_cube(cube, N, M, n, cmap):
         cube = cube.collapsed('forecast_reference_time', iris.analysis.MEAN)
     
     cmap = plt.get_cmap(cmap)
-    levels, extend = hist_limits(cube, 7)
+    levels, extend = hist_limits(cube, levels, 7)
     
     if (extend =='max'): 
         norm = BoundaryNorm(levels, ncolors=cmap.N - 1)
@@ -58,21 +60,10 @@ def plot_cube(cube, N, M, n, cmap):
     plt.gca().coastlines()
     
 
-def plot_cubes_map(cubes, N, M, cmap, *args):
+def plot_cubes_map(cubes, N, M, levels, cmap, *args):
     nplots = len(cubes) + 1
-    for i in range(0, nplots - 1):         
-        if (type(cmap) is str): 
-            plot_cube(cubes[i], N, M, i + 1, cmap   , *args)
-        else: 
-            plot_cube(cubes[i], N, M, i + 1, cmap[i], *args)  
+    for i in range(0, nplots - 1):    
+        cmapi = cmap if (type(cmap) is str) else cmap[i]    
+        plot_cube(cubes[i], N, M, i + 1, levels, cmapi   , *args)
 
-    if (nplots == 1):
-        i = -1
-        p = 1
-    else: p = 2
-    #if (type(cmap) is str):
-    #    plot_cube(cubes[i + 1], nplots, p, cmap, *args)
-    #else:        
-#    plot_cube(cubes[i + 1], nplots, p, cmap[i+1], *args)
-
-
+    

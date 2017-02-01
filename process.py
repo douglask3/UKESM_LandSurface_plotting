@@ -42,6 +42,7 @@ for section in Config.sections():
     VarNames      =  Config.Default(section, "VarNames"     , VarStashCodes    , asList = True)
     VarScaling    =  Config.Default(section, "VarScaling"   , 1.0  , "float"   )
     VarLbelv      =  Config.Default(section, "VarLbelv"     , None,  "int"     )
+    VarLevels     =  Config.Default(section, "VarLevels"    , None,  "float"   )
     Total         =  Config.Default(section, "Total"        , False, "boolean" )
     Stream        =  Config.Default(section, "Stream"                          )
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
@@ -55,6 +56,6 @@ for section in Config.sections():
     FigName = jdir + '/' + FigName
     opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
                            total = Total, scale = VarScaling)
-    opr.plot_cubes(FigName, FigTitle, FigTSMean, running_mean, FigCmap)
+    opr.plot_cubes(FigName, FigTitle, FigTSMean, running_mean, VarLevels, FigCmap)
 
 
