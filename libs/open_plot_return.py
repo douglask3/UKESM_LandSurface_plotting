@@ -27,9 +27,10 @@ class open_plot_return(object):
 
     def load_group(self, files, codes, lbelvs, names,total = False, scale = None, **kw):
         
-        if (len(codes) == 1): codes = [codes[0] for i in names]     
-        dat = [load_stash(files, code, lbelv, name, **kw) for code, lbelv, name in zip(codes, lbelvs, names)]
-        
+        if (len(codes) == 1 and len(names) > 1 and lbelvs is not None): names = [names]
+    
+        dat = [load_stash(files, code, lbelvs, name, **kw).dat for code, name in zip(codes, names)]
+        if (len(codes) == 1): dat = dat[0]
         dat = [i for i in dat if i is not None]
         for i in range(0, len(dat)):
                 if (dat[i].coords()[0].long_name == 'pseudo_level'):

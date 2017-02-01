@@ -4,29 +4,43 @@ import warnings
 import numpy as np
 from pdb import set_trace as browser
 
-def load_stash(files, code, lbelv, name, units = None):
-    print name
-    print code
-    try:
-        codeNum = int(code)
-        if   (len(code) == 5): code = 'm01s' + code[0:2] + 'i' + code[2:]
-        elif (len(code) == 7): code = 'm' + code[0:2] + 's' + code[2:4] + 'i' + code[4:]
-    except:
-        pass
 
-    stash_constraint = iris.AttributeConstraint(STASH = code)
+class load_stash(object):
+    def __init__(self, files, code, lbelvs, name, units = None):
+        self.dat = self.stash_code(files, code)
+        if (self.dat is not None):
+
+            if (lbelvs is not None):
+                self.dat = [self.stash_levels(lbelv) for lbelv in lbelvs]
+            
+            for i in range(0, len(self.dat)):
+                print "opening: " + name[i]
+                self.dat[i].var_name = name[i]
+                self.dat[i].standard_name = None
+                if (units is not None): self.dat[i].units = units
+
+
+    def stash_code(self, files, code):    
+        try:
+            codeNum = int(code)
+            if   (len(code) == 5): code = 'm01s' + code[0:2] + 'i' + code[2:]
+            elif (len(code) == 7): code = 'm' + code[0:2] + 's' + code[2:4] + 'i' + code[4:]
+        except:
+            pass
+
+        stash_constraint = iris.AttributeConstraint(STASH = code)
     
-    try:
-        cube = iris.load_cube(files, stash_constraint)
+        try:
+            cube = iris.load_cube(files, stash_constraint)
+            return cube
+        except:    
+            warnings.warn('unable to open variable: ' + code)
+            pass 
+
+    def stash_levels(self, lbelv):
         
-        if (lbelv is not None):
-            index = np.where(cube.coord('pseudo_level').points == lbelv)[0]
-            cube  = cube[index][0]
-        
-        cube.var_name = name
-        cube.standard_name = None
-        if (units is not None): cube.units = units
+        index = np.where(self.dat.coord('pseudo_level').points == lbelv)[0]
+        cube  = self.dat[index][0]
+
         return cube
-    except:    
-        warnings.warn('unable to open variable: ' + code)
-        pass  
+     
