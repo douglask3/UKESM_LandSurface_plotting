@@ -39,6 +39,9 @@ def hist_limits(dat, nlims, symmetrical = True):
 
 def plot_cube(cube, Ns, N, cmap):
     if (Ns > 1): Ns = Ns -1
+    print "---"
+    print Ns, N
+    print "+++"
     plt.subplot(Ns, 2, N, projection=ccrs.Robinson())
     print cube.name()
     try:
@@ -56,25 +59,26 @@ def plot_cube(cube, Ns, N, cmap):
 
     qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm, extend = extend)
     plt.gca().coastlines()
-
+    
 
 def plot_cubes_map(cubes, cmap, *args):
-    nplots = len(cubes)
+    nplots = len(cubes) + 1
     for i in range(0, nplots - 1): 
-        print i 
+        print "yay" 
         
         if (type(cmap) is str): 
             plot_cube(cubes[i], nplots, i * 2 + 1, cmap, *args)
         else: 
             plot_cube(cubes[i], nplots, i * 2 + 1, cmap[i], *args)
-    
+        print "wow"    
+
     if (nplots == 1):
         i = -1
         p = 1
     else: p = 2
-    if (type(cmap) is str):
-        plot_cube(cubes[i + 1], nplots, p, cmap, *args)
-    else:        
-        plot_cube(cubes[i + 1], nplots, p, cmap[i+1], *args)
+    #if (type(cmap) is str):
+    #    plot_cube(cubes[i + 1], nplots, p, cmap, *args)
+    #else:        
+    #    plot_cube(cubes[i + 1], nplots, p, cmap[i+1], *args)
 
 

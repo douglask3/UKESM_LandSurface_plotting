@@ -44,7 +44,9 @@ for section in Config.sections():
     Total         =  Config.Default(section, "Total"        , False, "boolean" )
     Stream        =  Config.Default(section, "Stream"                          )
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
-    
+    VarLbelv      =  Config.Default(section, "VarLbelv"     , None,  "int"     )
+
+
     if (Stream is not None): datDirt = datDir + Stream + '/'
     else: datDirt = datDir
         
@@ -52,6 +54,6 @@ for section in Config.sections():
     
     FigName = jdir + '/' + FigName
     opr   = open_plot_return(files, total = Total, running_mean = running_mean)
-    opr.open_plot_and_return(FigName, FigTitle, VarStashCodes, VarNames,  FigUnits, FigTSMean, FigCmap, scale = VarScaling)
+    opr.open_plot_and_return(FigName, FigTitle, VarStashCodes, VarLbelv, VarNames,  FigUnits, FigTSMean, FigCmap, scale = VarScaling)
 
 

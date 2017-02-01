@@ -24,10 +24,11 @@ class open_plot_return(object):
         self.running_mean = running_mean  
 
 
-    def load_group(self, codes, names, scale = None, **kw):
+    def load_group(self, codes, lbelvs, names, scale = None, **kw):
         dat = self.dat
-        if (dat is None):        
-            dat = [load_stash(self.files, code, name, **kw) for code, name in zip(codes, names)]
+        if (dat is None):
+            if (len(codes) == 1): codes = [codes[0] for i in names]     
+            dat = [load_stash(self.files, code, lbelv, name, **kw) for code, lbelv, name in zip(codes, lbelvs, names)]
         
         dat = [i for i in dat if i is not None]
         for i in range(0, len(dat)):
@@ -52,30 +53,30 @@ class open_plot_return(object):
 
 
     def plot_cubes(self, cubes, title, TSMean, *args):
-        nplots = len(cubes)    
+        nplots = len(cubes) 
         plot_cubes_map(cubes, *args)  
         
         if (nplots == 1):
             N = 1
             p = 2
         else:
-            N = nplots - 1
+            N = nplots 
             p = 4
-        plt.subplot(max([1, nplots - 1]), 2, 2)
+        plt.subplot(max([1, nplots]), 2, 2)
         plot_cube_TS(cubes, self.running_mean, TSMean)      
     
         plt.gcf().suptitle(title, fontsize=18, fontweight='bold')
  
     def open_plot_and_return(self, figName, title,
-                             codes = None, names = None,  units  = None,
+                             codes = None, lbelv = None, names = None,  units  = None,
                              TSMean = False,
                              cmap = 'brewer_Greys_09', **kw):
     
         fig_name = 'figs/' + figName + '.pdf'
         makeDir(fig_name)
         git = 'repo: ' + git_info.url + '\n' + 'rev:  ' + git_info.rev
-   
-        dat = self.load_group(codes, names, units = units, **kw)
+           
+        dat = self.load_group(codes, lbelv, names, units = units, **kw)
         
         plt.figure(figsize = (15, 5 * max([1, len(dat) - 1])))
         self.plot_cubes(dat, title, TSMean, cmap)

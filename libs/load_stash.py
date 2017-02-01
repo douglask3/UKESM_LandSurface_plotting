@@ -1,9 +1,10 @@
 import iris
 import sys
 import warnings
+import numpy as np
 from pdb import set_trace as browser
 
-def load_stash(files, code, name, units = None):
+def load_stash(files, code, lbelv, name, units = None):
     print name
     print code
     try:
@@ -13,11 +14,15 @@ def load_stash(files, code, name, units = None):
     except:
         pass
 
-    
     stash_constraint = iris.AttributeConstraint(STASH = code)
     
     try:
         cube = iris.load_cube(files, stash_constraint)
+        
+        if (lbelv is not None):
+            index = np.where(cube.coord('pseudo_level').points == lbelv)[0]
+            cube  = cube[index][0]
+        
         cube.var_name = name
         cube.standard_name = None
         if (units is not None): cube.units = units
