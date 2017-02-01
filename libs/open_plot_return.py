@@ -72,7 +72,7 @@ class open_plot_return(object):
         plt.gcf().suptitle(title, fontsize=18, fontweight='bold')
 
         git = 'repo: ' + git_info.url + '\n' + 'rev:  ' + git_info.rev
-        plt.gcf().text(.05, .5, git, rotation = 90)
+        plt.gcf().text(.05, .67, git, rotation = 90)
 
         figName = 'figs/' + figName + '.png'
         makeDir(figName)
@@ -82,10 +82,6 @@ class open_plot_return(object):
                              codes = None, lbelv = None, names = None,  units  = None,
                              TSMean = False,
                              cmap = 'brewer_Greys_09', **kw):
-    
-        
-        
-        
            
         dat = self.load_group(codes, lbelv, names, units = units, **kw)
         
