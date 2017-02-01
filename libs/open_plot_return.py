@@ -53,16 +53,17 @@ class open_plot_return(object):
     
     def plot_setup(self):
         nplots = len(self.dat)
-
+        
         if (nplots == 1):
             N = 2
             M = 1
         else:
-            N = int(nplots**0.5) + 1
+            N = int(nplots**0.5)
             M = round(nplots/float(N))
+            if ((N * M) < nplots): N = N + 1
+            N = N + 1
 
-        plt.figure(figsize = (3 * N, 6 * M))
-
+        plt.figure(figsize = (4 * N, 4 * M))
         return N, M
 
     def plot_cubes(self, figName, title, TSMean = False, running_mean= False,

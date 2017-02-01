@@ -62,9 +62,9 @@ def plot_cubes_map(cubes, N, M, cmap, *args):
     nplots = len(cubes) + 1
     for i in range(0, nplots - 1):         
         if (type(cmap) is str): 
-            plot_cube(cubes[i], N, M, i, cmap   , *args)
+            plot_cube(cubes[i], N, M, i + 1, cmap   , *args)
         else: 
-            plot_cube(cubes[i], N, M, i, cmap[i], *args)  
+            plot_cube(cubes[i], N, M, i + 1, cmap[i], *args)  
 
     if (nplots == 1):
         i = -1
