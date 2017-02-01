@@ -52,39 +52,45 @@ class open_plot_return(object):
         return dat
 
 
-    def plot_cubes(self, cubes, title, TSMean, *args):
-        nplots = len(cubes) 
-        plot_cubes_map(cubes, *args)  
+    def plot_cubes(self, cubes, figName, title, TSMean, *args):
+        nplots = len(cubes)   
         
         if (nplots == 1):
-            N = 1
+            N = 2
+            M = 1
             p = 2
         else:
-            N = nplots 
+            N = int(nplots**0.5) + 1
+            M = round(nplots/float(N))
             p = 4
-        plt.subplot(max([1, nplots]), 2, 2)
+        plt.figure(figsize = (3 * N, 6 * M))
+        plot_cubes_map(cubes, N, M, *args)        
+
+        plt.subplot(N, 1, N)
         plot_cube_TS(cubes, self.running_mean, TSMean)      
     
         plt.gcf().suptitle(title, fontsize=18, fontweight='bold')
+
+        git = 'repo: ' + git_info.url + '\n' + 'rev:  ' + git_info.rev
+        plt.gcf().text(.05, .5, git, rotation = 90)
+
+        figName = 'figs/' + figName + '.png'
+        makeDir(figName)
+        plt.savefig(figName, bbox_inches='tight')
  
     def open_plot_and_return(self, figName, title,
                              codes = None, lbelv = None, names = None,  units  = None,
                              TSMean = False,
                              cmap = 'brewer_Greys_09', **kw):
     
-        fig_name = 'figs/' + figName + '.pdf'
-        makeDir(fig_name)
-        git = 'repo: ' + git_info.url + '\n' + 'rev:  ' + git_info.rev
+        
+        
+        
            
         dat = self.load_group(codes, lbelv, names, units = units, **kw)
         
-        plt.figure(figsize = (15, 5 * max([1, len(dat) - 1])))
-        self.plot_cubes(dat, title, TSMean, cmap)
-
-        plt.gcf().text(.05, .95, git, rotation = 90)
-        plt.savefig(fig_name, bbox_inches='tight')
-    
+        self.plot_cubes(dat, figName, title, TSMean, cmap)
+        
         dat[-1].long_name = title
-    
         if (self.total): return dat[-1]
  

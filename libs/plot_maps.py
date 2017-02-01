@@ -37,12 +37,9 @@ def hist_limits(dat, nlims, symmetrical = True):
     return (lims, extend)
 
 
-def plot_cube(cube, Ns, N, cmap):
-    if (Ns > 1): Ns = Ns -1
-    print "---"
-    print Ns, N
-    print "+++"
-    plt.subplot(Ns, 2, N, projection=ccrs.Robinson())
+def plot_cube(cube, N, M, n, cmap):
+   
+    plt.subplot(N, M, n, projection=ccrs.Robinson())
     print cube.name()
     try:
         cube = cube.collapsed('time', iris.analysis.MEAN)
@@ -61,16 +58,13 @@ def plot_cube(cube, Ns, N, cmap):
     plt.gca().coastlines()
     
 
-def plot_cubes_map(cubes, cmap, *args):
+def plot_cubes_map(cubes, N, M, cmap, *args):
     nplots = len(cubes) + 1
-    for i in range(0, nplots - 1): 
-        print "yay" 
-        
+    for i in range(0, nplots - 1):         
         if (type(cmap) is str): 
-            plot_cube(cubes[i], nplots, i * 2 + 1, cmap, *args)
+            plot_cube(cubes[i], N, M, i, cmap   , *args)
         else: 
-            plot_cube(cubes[i], nplots, i * 2 + 1, cmap[i], *args)
-        print "wow"    
+            plot_cube(cubes[i], N, M, i, cmap[i], *args)  
 
     if (nplots == 1):
         i = -1
@@ -79,6 +73,6 @@ def plot_cubes_map(cubes, cmap, *args):
     #if (type(cmap) is str):
     #    plot_cube(cubes[i + 1], nplots, p, cmap, *args)
     #else:        
-    #    plot_cube(cubes[i + 1], nplots, p, cmap[i+1], *args)
+#    plot_cube(cubes[i + 1], nplots, p, cmap[i+1], *args)
 
 
