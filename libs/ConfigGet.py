@@ -15,7 +15,8 @@ class ConfigGet(object):
         var = [e.strip() for e in var.split(',')]
 
         ## replace with something shorter and cleverer
-        if (type == 'float'  ): var = [float  (i) for i in var]
+        if (type == 'float'  ): var = [float(i) for i in var]
+        if (type == 'int'    ): var = [int  (i) for i in var]
         if (type == 'boolean'):
             var = [i == 'True' for i in var]
     
