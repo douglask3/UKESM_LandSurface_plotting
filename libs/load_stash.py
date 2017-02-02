@@ -9,6 +9,7 @@ class load_stash(object):
     def __init__(self, files, code, lbelvs, name, units = None):
         
         self.dat = self.stash_code(files, code)
+        
         if (self.dat is not None):
 
             if (lbelvs is not None):
