@@ -12,7 +12,7 @@ ceh          = Config.Default("MachineInfo", "ceh", False, "boolean")
 if (ceh): import libs.import_iris
 from   libs.open_plot_return import *
 
-datDir       = Config.Default("FileInfo", "dir"         , default = 'data')
+datDir       = Config.Default("FileInfo", "dir"         , default = 'data/')
 jobs         = Config.Default("FileInfo", "job"         , asList = True)
 jdir         = Config.Default("FileInfo", "subDir"      )
 stream       = Config.Default("FileInfo", "Stream"      )
@@ -24,16 +24,17 @@ for job in jobs:
     if (job is None or stream is None):
         sys.exit('either a local dir for ESM output, or a suite code and ouput stream need to be defined')
     
-    datDirs.append = datDir + job + '/' + jdir + '/'
+    datDiri = datDir + job + '/' + jdir + '/'
+    datDirs.append(datDiri)
     ## collect stash codes
     stash = []
     for i in Config.sections():
         newStash = Config.Default(i, "VarStashCodes", asList = True)
         if (newStash is not None): stash.extend(newStash)
     
-    if (grab): grab_data(job, stream, stash, datDir)    
+    if (grab): grab_data(job, stream, stash, datDiri)    
 
-browser()
+
 	
 for section in Config.sections():
     if (section == 'FileInfo' or section == 'MachineInfo'): continue
@@ -43,12 +44,12 @@ for section in Config.sections():
     FigUnits      =  Config.Default(section, "FigUnits"                        )
     FigCmap       =  Config.Default(section, "FigCmap"      , "brewer_Greys_09")
     VarStashCodes =  Config.Default(section, "VarStashCodes", "required"       , asList = True)
+    
+    if (len(jobs) > 1 and len(VarStashCodes) > 1):
+	warnings.warn('More than one stash code for a multi-job plot. Only first one uses')
+	VarStashCodes = [VarStashCodes[0]]
 	
-	if (len(jobs) > 1 and len(VarStashCodes) > 1):
-		warnings.warn('More than one stash code for a multi-job plot. Only first one uses')
-		VarStashCodes = [VarStashCodes[0]]
-	
-	VarNames_default = jobs if (len(jobs) > 1) else VarStashCodes
+    VarNames_default = jobs if (len(jobs) > 1) else VarStashCodes
 	
     VarNames      =  Config.Default(section, "VarNames"     , VarNames_default    , asList = True)
     VarScaling    =  Config.Default(section, "VarScaling"   , 1.0  , "float"   )
@@ -61,11 +62,9 @@ for section in Config.sections():
     ## find files
     files = []
     for datD in datDirs:
-	datDirt = datD if Stream is None else datD + Stream + '/'
-	files.append = [sort(listdir_path(i)) for i in datDirt]
-
-    browser()
-    
+	datDirt = datD if Stream is None else datD + Stream + '/'        
+	files.append(sort(listdir_path(datDirt)))
+       
     FigName = jdir + '/' + FigName
 
     ## adapt for multi files jobs

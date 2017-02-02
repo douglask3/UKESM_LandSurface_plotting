@@ -7,17 +7,25 @@ from pdb import set_trace as browser
 
 class load_stash(object):
     def __init__(self, files, code, lbelvs, name, units = None):
+        
         self.dat = self.stash_code(files, code)
         if (self.dat is not None):
 
             if (lbelvs is not None):
                 self.dat = [self.stash_levels(lbelv) for lbelv in lbelvs]
             
-            for i in range(0, len(self.dat)):
-                print "opening: " + name[i]
-                self.dat[i].var_name = name[i]
-                self.dat[i].standard_name = None
-                if (units is not None): self.dat[i].units = units
+            #stick in function
+            if (isinstance(self.dat, list)):
+                for i in range(0, len(self.dat)):
+                    print "opening: " + name[i]
+                    self.dat[i].var_name = name[i]
+                    self.dat[i].standard_name = None
+                    if (units is not None): self.dat[i].units = units
+            else: 
+                print "opening: " + name
+                self.dat.var_name = name
+                self.dat.standard_name = None
+                if (units is not None): self.dat.units = units
 
 
     def stash_code(self, files, code):    
@@ -27,7 +35,7 @@ class load_stash(object):
             elif (len(code) == 7): code = 'm' + code[0:2] + 's' + code[2:4] + 'i' + code[4:]
         except:
             pass
-
+        
         stash_constraint = iris.AttributeConstraint(STASH = code)
     
         try:

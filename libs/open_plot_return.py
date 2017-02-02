@@ -27,10 +27,14 @@ class open_plot_return(object):
 
     def load_group(self, files, codes, lbelvs, names,total = False, scale = None, **kw):
         
-        if (len(codes) == 1 and len(names) > 1 and lbelvs is not None): names = [names]
-    
-        dat = [load_stash(files, code, lbelvs, name, **kw).dat for code, name in zip(codes, names)]
-        if (len(codes) == 1): dat = dat[0]
+        if (isinstance(files[0], str)):        
+            if (len(codes) == 1 and len(names) > 1 and lbelvs is not None): names = [names]
+            dat = [load_stash(files, code, lbelvs, name, **kw).dat for code, name in zip(codes, names)]
+            if (len(codes) == 1): dat = [dat[0]]
+        else:            
+            dat = [load_stash(file, codes[0], lbelvs, name, **kw).dat for file, name in zip(files, names)]
+            
+        
         dat = [i for i in dat if i is not None]
         for i in range(0, len(dat)):
                 if (dat[i].coords()[0].long_name == 'pseudo_level'):
@@ -64,7 +68,7 @@ class open_plot_return(object):
             if ((N * M) < nplots): N = N + 1
             N = N + 1
 
-        plt.figure(figsize = (4 * N, 4 * M))
+        plt.figure(figsize = (8 * N, 4 * M))
         return N, M
 
     def plot_cubes(self, figName, title, TSMean = False, running_mean= False,

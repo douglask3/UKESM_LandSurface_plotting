@@ -20,7 +20,7 @@ def grab_data(job, stream, codes, dir = None):
     if len(codes) != 1: filter += '('    
     for i in codes: filter += i + ', '
     filter = filter[:-2]
-    if len(codes) != 1: filer += ')'
+    if len(codes) != 1: filter += ')'
     filter += ' \n end'
     
     fname = 'temp/filter.fl'
