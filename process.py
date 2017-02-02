@@ -12,22 +12,19 @@ ceh          = Config.Default("MachineInfo", "ceh", False, "boolean")
 if (ceh): import libs.import_iris
 from   libs.open_plot_return import *
 
-datDir       = Config.Default("FileInfo", "dir"         )
+datDir       = Config.Default("FileInfo", "dir"         , default = 'data')
 jobs         = Config.Default("FileInfo", "job"         , asList = True)
 jdir         = Config.Default("FileInfo", "subDir"      )
 stream       = Config.Default("FileInfo", "Stream"      )
 grab         = Config.Default("FileInfo", "grab"        , True,  "boolean")
 running_mean = Config.Default("FileInfo", "running_mean", False, 'boolean')
 
-datDir = []
-## track darDirs
+datDirs = []
 for job in jobs:
-## Indent from here
-if (datDir is None):
     if (job is None or stream is None):
         sys.exit('either a local dir for ESM output, or a suite code and ouput stream need to be defined')
     
-    datDir = 'data/' + job + '/' + jdir + '/'
+    datDirs.append = datDir + job + '/' + jdir + '/'
     ## collect stash codes
     stash = []
     for i in Config.sections():
@@ -35,8 +32,8 @@ if (datDir is None):
         if (newStash is not None): stash.extend(newStash)
     
     if (grab): grab_data(job, stream, stash, datDir)    
-## TO here
-	
+
+browser()
 	
 for section in Config.sections():
     if (section == 'FileInfo' or section == 'MachineInfo'): continue
@@ -59,10 +56,11 @@ for section in Config.sections():
     Stream        =  Config.Default(section, "Stream"                          )
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
     
+	## find files
 	files = []
-	for datD in datDir:
-		datDirt = datDir if Stream is None else datDir + Stream + '/'
-		files.append = [sort(listdir_path(i)) for i in datDir]
+	for datD in datDirs:
+		datDirt = datD if Stream is None else datD + Stream + '/'
+		files.append = [sort(listdir_path(i)) for i in datDirt]
     
     FigName = jdir + '/' + FigName
 	
