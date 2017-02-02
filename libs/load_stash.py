@@ -15,7 +15,7 @@ class load_stash(object):
             if (lbelvs is not None):
                 self.dat = [self.stash_levels(lbelv) for lbelv in lbelvs]
             
-            #stick in function
+            #stick in function            
             if (isinstance(self.dat, list)):
                 for i in range(0, len(self.dat)):
                     print "opening: " + name[i]
@@ -25,9 +25,9 @@ class load_stash(object):
             else: 
                 print "opening: " + name
                 self.dat.var_name = name
+                self.dat.long_name = name
                 self.dat.standard_name = None
-                if (units is not None): self.dat.units = units
-
+                if (units is not None): self.dat.units = units 
 
     def stash_code(self, files, code):    
         try:
