@@ -49,18 +49,20 @@ for section in Config.sections():
 	warnings.warn('More than one stash code for a multi-job plot. Only first one uses')
 	VarStashCodes = [VarStashCodes[0]]
 	
+
     VarNames_default = jobs if (len(jobs) > 1) else VarStashCodes
 	
     VarNames      =  Config.Default(section, "VarNames"     , VarNames_default    , asList = True)
     VarScaling    =  Config.Default(section, "VarScaling"   , 1.0  , "float"   )
     VarLbelv      =  Config.Default(section, "VarLbelv"     , None,  "int"     )
     VarLevels     =  Config.Default(section, "VarLevels"    , None,  "float"   )
+    VarCmap       =  Config.Default(section, "VarCmap"      , [FigCmap]           , asList = True)
     Total         =  Config.Default(section, "Total"        , False, "boolean" )
     Stream        =  Config.Default(section, "Stream"                          )
     FigTS         =  Config.Default(section, "FigTS"        , True , "boolean" )
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
-
-    
+    Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 else False, "boolean")
+   
     ## find files
     files = []
     for datD in datDirs:
@@ -71,7 +73,7 @@ for section in Config.sections():
 
     ## adapt for multi files jobs
     opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
-                           total = Total, scale = VarScaling)
-    opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean, running_mean, VarLevels, FigCmap)
+                           diff = Diff, total = Total, scale = VarScaling)
+    opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean, running_mean, VarLevels, VarCmap)
 
 

@@ -62,6 +62,7 @@ def plot_cube(cube, N, M, n, levels = None, cmap = 'brewer_Greys_09'):
 
 def plot_cubes_map(cubes, N, M, levels, cmap, *args):
     nplots = len(cubes) + 1
+    if (type(cmap) is list and len(cmap) == 1): cmap = cmap[0]
     for i in range(0, nplots - 1):    
         cmapi = cmap if (type(cmap) is str) else cmap[i]    
         plot_cube(cubes[i], N, M, i + 1, levels, cmapi   , *args)

@@ -18,14 +18,15 @@ from   pdb   import set_trace as browser
 
 class open_plot_return(object):
     def __init__(self, files = None, codes = None, lbelv = None, names = None,
-                 units  = None, dat = None, total = False, **kw): 
+                 units  = None, dat = None, diff = False, total = False, **kw): 
         if (dat is None):
-            self.dat = self.load_group(files, codes, lbelv, names, total, units = units, **kw)
+            self.dat = self.load_group(files, codes, lbelv, names, diff, total, units = units, **kw)
         else:
             self.dat = dat 
 
 
-    def load_group(self, files, codes, lbelvs, names,total = False, scale = None, **kw):
+    def load_group(self, files, codes, lbelvs, names,
+                   diff = False, total = False, scale = None, **kw):
         if (len(files) == 1 and isinstance(files, list)): files = files[0] 
         if (isinstance(files[0], str)):                    
             if (len(codes) == 1 and len(names) > 1 and lbelvs is not None): names = [names]
@@ -52,7 +53,19 @@ class open_plot_return(object):
             tot.var_name  = 'total'
             tot.long_name = 'total'   
             dat.append(tot)
-        
+        elif (diff and len(dat) == 2):       
+            nt = min(dat[0].shape[0], dat[1].shape[0])
+
+            dat[0] = dat[0][0:nt]
+            dat[1] = dat[1][0:nt]
+            
+            diff = dat[1].copy() 
+            diff = diff - dat[0]
+
+            diff.var_name  = 'difference'
+            diff.long_name = 'difference'
+            dat.append(diff)
+
         return dat
     
     def plot_setup(self, TS):
