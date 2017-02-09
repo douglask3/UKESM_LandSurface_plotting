@@ -55,30 +55,32 @@ class open_plot_return(object):
         
         return dat
     
-    def plot_setup(self):
+    def plot_setup(self, TS):
         nplots = len(self.dat)
         
         if (nplots == 1):
-            N = 2
+            N = 1
             M = 1
         else:
             N = int(nplots**0.5)
             M = round(nplots/float(N))
             if ((N * M) < nplots): N = N + 1
-            N = N + 1
-
+            N = N
+        
+        if (TS): N = N + 1
         plt.figure(figsize = (24 + max(0, (N - 3)/2),  12 + max(0, (M - 3)/2)))
         return N, M
 
-    def plot_cubes(self, figName, title, TSMean = False, running_mean= False,
+    def plot_cubes(self, figName, title, TS = True, TSMean = False, running_mean= False,
                    levels = None, cmap = 'brewer_Greys_09', *args):   
        
-        N, M = self.plot_setup()
+        N, M = self.plot_setup(TS)
         
         plot_cubes_map(self.dat, N, M, levels, cmap = cmap, *args)        
-
-        plt.subplot(N, 1, N)
-        plot_cube_TS(self.dat, running_mean, TSMean)      
+    
+        if (TS):
+            plt.subplot(N, 1, N)
+            plot_cube_TS(self.dat, running_mean, TSMean)      
     
         plt.gcf().suptitle(title, fontsize=18, fontweight='bold')
 

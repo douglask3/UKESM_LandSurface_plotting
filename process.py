@@ -57,7 +57,9 @@ for section in Config.sections():
     VarLevels     =  Config.Default(section, "VarLevels"    , None,  "float"   )
     Total         =  Config.Default(section, "Total"        , False, "boolean" )
     Stream        =  Config.Default(section, "Stream"                          )
+    FigTS         =  Config.Default(section, "FigTS"        , True , "boolean" )
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
+
     
     ## find files
     files = []
@@ -70,6 +72,6 @@ for section in Config.sections():
     ## adapt for multi files jobs
     opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
                            total = Total, scale = VarScaling)
-    opr.plot_cubes(FigName, FigTitle, FigTSMean, running_mean, VarLevels, FigCmap)
+    opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean, running_mean, VarLevels, FigCmap)
 
 
