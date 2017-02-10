@@ -87,7 +87,8 @@ class open_plot_return(object):
         plt.figure(figsize = (24 + max(0, (N - 3)/2),  12 + max(0, (M - 3)/2)))
         return N, M
 
-    def plot_cubes(self, figName, title, TS = True, TSMean = False, running_mean= False,
+    def plot_cubes(self, figName, title,
+                   TS = True, TSMean = False, TSUnits = None, running_mean= False,
                    levels = None, cmap = 'brewer_Greys_09', *args):   
        
         N, M = self.plot_setup(TS)
@@ -96,7 +97,7 @@ class open_plot_return(object):
     
         if (TS):
             plt.subplot(N, 1, N)
-            plot_cube_TS(self.dat, running_mean, TSMean)      
+            plot_cube_TS(self.dat, running_mean, TSMean, TSUnits)      
     
         plt.gcf().suptitle(title, fontsize=18, fontweight='bold')
 

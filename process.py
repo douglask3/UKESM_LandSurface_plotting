@@ -59,6 +59,7 @@ for section in Config.sections():
     Stream        =  Config.Default(section, "Stream"                          )
     FigTS         =  Config.Default(section, "FigTS"        , True , "boolean" )
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
+    FigTSUnits    =  Config.Default(section, "FigTSUnits")
     Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 else False, "boolean")
     
     if (len(jobs) > 1 and (len(VarStashCodes) > 1 or len(VarLbelv) > 1)):
@@ -70,7 +71,7 @@ for section in Config.sections():
             
             opri = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
                                diff = Diff, total = Total, scale = VarScaling)
-            opri.plot_cubes(FigNamei, FigTitle + ' ' + job, FigTS, FigTSMean,
+            opri.plot_cubes(FigNamei, FigTitle + ' ' + job, FigTS, FigTSMean, FigTSUnits,
                             running_mean, VarLevels, VarCmap)
             opr.append(opri)
         
@@ -78,7 +79,7 @@ for section in Config.sections():
         
         ## needs new Levels and Cmap for diff.
         FigName = jdir + '/' + 'diff_' + jobs[1] + '-' + jobs[0] + FigName
-        opr[1].plot_cubes(FigName, FigTitle + ' differnce', FigTS, FigTSMean,
+        opr[1].plot_cubes(FigName, FigTitle + ' differnce', FigTS, FigTSMean, FigTSUnits,
                        running_mean, VardLevels, VardCmap)
         
         

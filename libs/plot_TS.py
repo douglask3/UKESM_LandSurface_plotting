@@ -36,14 +36,14 @@ def cube_TS(cube, running_mean = False, mean = False):
     cube = cube.collapsed(['latitude', 'longitude'], collapseFun, weights = grid_areas)
     
     if (running_mean): cube.data = running_N_mean(cube.data, 12)
-    cube.units = 'g C'
     return cube   
 
-def plot_cube_TS(cubes, running_mean, mean):    
+def plot_cube_TS(cubes, running_mean, mean, units):    
     cubes = [cube_TS(cube, running_mean, mean) for cube in cubes]    
     
     for cube in cubes: iplt.plot(cube, label = cube.name())
-    plt.ylabel('g C')
+    
+    if units is None: units = [cubes[0].units if mean else '']
     
     ncol = min(4 * int(len(cubes)**0.5), len(cubes))
     plt.legend(loc = 'upper center', bbox_to_anchor = (0.5, -0.05),
@@ -52,4 +52,4 @@ def plot_cube_TS(cubes, running_mean, mean):
     plt.grid(True)    
     plt.axis('tight')
     
-    plt.gca().set_ylabel(cubes[0].units, fontsize=16)
+    plt.gca().set_ylabel(units, fontsize=16)
