@@ -27,7 +27,9 @@ class open_plot_return(object):
 
     def load_group(self, files, codes, lbelvs, names,
                    diff = False, total = False, scale = None, **kw):
+        
         if (len(files) == 1 and isinstance(files, list)): files = files[0] 
+
         if (isinstance(files[0], str)):                    
             if (len(codes) == 1 and len(names) > 1 and lbelvs is not None): names = [names]
             dat = [load_stash(files, code, lbelvs, name, **kw).dat for code, name in zip(codes, names)]
@@ -53,6 +55,7 @@ class open_plot_return(object):
             tot.var_name  = 'total'
             tot.long_name = 'total'   
             dat.append(tot)
+
         elif (diff and len(dat) == 2):       
             nt = min(dat[0].shape[0], dat[1].shape[0])
 
@@ -105,5 +108,22 @@ class open_plot_return(object):
         plt.savefig(figName, bbox_inches='tight')
 
         return self.dat
- 
+    
+    def diff(self, opr):
+        
+        def diff_cube(cs1, cs2):
+            if (cs1.ndim == 3 and cs2.ndim == 3):
+                nt = min(cs1.shape[0], cs2.shape[1])
+                cs1 = cs1[0:nt]
+                cs2 = cs2[0:nt]
+            cs1.data = cs1.data - cs2.data
+            return cs1
+
+        opr = opr.dat
+        ncubes = min(len(self.dat), len(opr))
+
+        cs1 = self.dat[0]
+        cs2 = opr[0]
+        
+        self.dat = [diff_cube(self.dat[i], opr[i])for i in range(0, ncubes)] 
 

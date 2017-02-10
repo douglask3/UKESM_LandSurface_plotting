@@ -43,37 +43,57 @@ for section in Config.sections():
     FigTitle      =  Config.Default(section, "FigTitle"     , section          )
     FigUnits      =  Config.Default(section, "FigUnits"                        )
     FigCmap       =  Config.Default(section, "FigCmap"      , "brewer_Greys_09")
+    FigdCmap      =  Config.Default(section, "FigdCmap"     , "brewer_Spectral_11")
     VarStashCodes =  Config.Default(section, "VarStashCodes", "required"       , asList = True)
     
-    if (len(jobs) > 1 and len(VarStashCodes) > 1):
-	warnings.warn('More than one stash code for a multi-job plot. Only first one uses')
-	VarStashCodes = [VarStashCodes[0]]
-	
-
-    VarNames_default = jobs if (len(jobs) > 1) else VarStashCodes
+    VarNames_default = jobs if (len(jobs) > 1 and len(VarStashCodes) == 1) else VarStashCodes
 	
     VarNames      =  Config.Default(section, "VarNames"     , VarNames_default    , asList = True)
     VarScaling    =  Config.Default(section, "VarScaling"   , 1.0  , "float"   )
     VarLbelv      =  Config.Default(section, "VarLbelv"     , None,  "int"     )
     VarLevels     =  Config.Default(section, "VarLevels"    , None,  "float"   )
+    VardLevels    =  Config.Default(section, "VardLevels"   , None,  "float"   )
     VarCmap       =  Config.Default(section, "VarCmap"      , [FigCmap]           , asList = True)
+    VardCmap      =  Config.Default(section, "VardCmap"     , [FigdCmap]          , asList = True)
     Total         =  Config.Default(section, "Total"        , False, "boolean" )
     Stream        =  Config.Default(section, "Stream"                          )
     FigTS         =  Config.Default(section, "FigTS"        , True , "boolean" )
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
     Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 else False, "boolean")
-   
-    ## find files
-    files = []
-    for datD in datDirs:
-	datDirt = datD if Stream is None else datD + Stream + '/'        
-	files.append(sort(listdir_path(datDirt)))
+    
+    if (len(jobs) > 1 and (len(VarStashCodes) > 1 or len(VarLbelv) > 1)):
+        opr = []
+        for job, datD in zip(jobs, datDirs):
+            datDirt = datD if Stream is None else datD + Stream + '/'
+            FigNamei = jdir + '/' +  job + '-' + FigName
+            files = sort(listdir_path(datDirt))
+            
+            opri = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
+                               diff = Diff, total = Total, scale = VarScaling)
+            opri.plot_cubes(FigNamei, FigTitle + ' ' + job, FigTS, FigTSMean,
+                            running_mean, VarLevels, VarCmap)
+            opr.append(opri)
+        
+        opr[1].diff(opr[0])
+        
+        ## needs new Levels and Cmap for diff.
+        FigName = jdir + '/' + 'diff_' + jobs[1] + '-' + jobs[0] + FigName
+        opr[1].plot_cubes(FigName, FigTitle + ' differnce', FigTS, FigTSMean,
+                       running_mean, VardLevels, VardCmap)
+        
+        
+    else:
+        ## find files
+        files = []
+        for datD in datDirs:
+	    datDirt = datD if Stream is None else datD + Stream + '/'        
+	    files.append(sort(listdir_path(datDirt)))
        
-    FigName = jdir + '/' + FigName
+        FigName = jdir + '/' + FigName
 
-    ## adapt for multi files jobs
-    opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
-                           diff = Diff, total = Total, scale = VarScaling)
-    opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean, running_mean, VarLevels, VarCmap)
+    
+        opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
+                               diff = Diff, total = Total, scale = VarScaling)
+        opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean, running_mean, VarLevels, VarCmap)
 
 
