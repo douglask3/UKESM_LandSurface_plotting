@@ -24,15 +24,21 @@ def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
             lims = [to_precision(i, 2) for i in lims]
             lims = np.unique(lims)
             if (len(lims) >= nlims0): break
+        new_lims = True
     else:
         nlims = len(lims) + 1
-    if (lims[0] < 0.0):        
-        if (sum(lims <0.0) > sum(lims >0.0)):
-            lims = lims[lims < 0.0]
-            lims = np.concatenate((lims,-lims[::-1]))  
-        else:
-            lims = lims[lims > 0.0]
-            lims = np.concatenate((-lims[::-1],lims))     
+        new_lims = False
+    if (lims[0] < 0.0):
+        if (new_lims): 
+            # are the more levels less than zero or gt  then zero  
+            if (sum(i < 0.0 for i in lims) > sum(i > 0.0 for i  in lims)):
+                # if more gt zero
+                lims = [i for i in lims if i < 0.0]
+                lims = np.concatenate((lims,-lims[::-1]))  
+            else:
+                # if more lt zero
+                lims = [i for i in lims if i > 0.0]
+                lims = np.concatenate((-lims[::-1],lims))     
         extend = 'both'
     else:
         extend = 'max'
