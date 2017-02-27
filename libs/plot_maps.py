@@ -38,7 +38,7 @@ def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
             else:
                 # if more lt zero
                 lims = [i for i in lims if i > 0.0]
-                lims = np.concatenate((-lims[::-1],lims))     
+                lims = np.concatenate(([-i for i in lims[::-1]], lims))     
         extend = 'both'
     else:
         extend = 'max'
@@ -46,7 +46,7 @@ def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
 
 
 def plot_cube(cube, N, M, n, levels = None, cmap = 'brewer_Greys_09'):
-   
+    
     plt.subplot(N, M, n, projection=ccrs.Robinson())
     print cube.name()
     try:
@@ -54,19 +54,20 @@ def plot_cube(cube, N, M, n, levels = None, cmap = 'brewer_Greys_09'):
     except:
         cube = cube.collapsed('forecast_reference_time', iris.analysis.MEAN)
     
-    cmap = plt.get_cmap(cmap)
+    cmap = plt.get_cmap(cmap)   
     levels, extend = hist_limits(cube, levels, 7)
     
     if (extend =='max'): 
         norm = BoundaryNorm(levels, ncolors=cmap.N - 1)
     else:
         norm = BoundaryNorm(levels, ncolors=cmap.N)
-
+    
     qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm, extend = extend)
     plt.gca().coastlines()
     
 
 def plot_cubes_map(cubes, N, M, levels, cmap, *args):
+    
     nplots = len(cubes) + 1
     if (type(cmap) is list and len(cmap) == 1): cmap = cmap[0]
     for i in range(0, nplots - 1):    
