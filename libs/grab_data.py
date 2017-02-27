@@ -31,16 +31,12 @@ def grab_data(job, stream, codes, dir = None):
     
     if (not isinstance(stream, list)): stream = [stream]
     
-    if (dir is not None): os.system('rm -r ' + dir) 
-    
     for st in stream:
         if (dir is None):
-            dirt = 'data/' + job + '/' + st + '/'
-            
-            os.system('rm -r ' + dirt) 
+            dirt = 'data/' + job + '/' + st + '/'  
         else:
             dirt = dir + st + '/'
-
+        os.system('rm -r ' + dirt)
         makeDir(dirt) 
         if (st[-5:] == '.file'): st = st + '/'
         else: st = st + '.pp/' 
