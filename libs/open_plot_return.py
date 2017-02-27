@@ -18,29 +18,35 @@ from   pdb   import set_trace as browser
 
 class open_plot_return(object):
     def __init__(self, files = None, codes = None, lbelv = None, names = None,
-                 units  = None, dat = None, diff = False, total = False, **kw): 
+                 units  = None, dat = None, diff = False, total = False, **kw):
         if (dat is None):
-            self.dat = self.load_group(files, codes, lbelv, names, diff, total, units = units, **kw)
+            self.dat = self.load_group(files, codes, lbelv, names, diff,
+                                       total, units = units, **kw)
         else:
             self.dat = dat 
 
-
-    def load_group(self, files, codes, lbelvs, names,
-                   diff = False, total = False, scale = None, **kw):
-        
+    
+    def load_group_cubes(self, files, codes, names, lbelvs, **kw):
         if (len(files) == 1 and isinstance(files, list)): files = files[0] 
 
-        if (isinstance(files[0], str)):                    
-            if (len(codes) == 1 and len(names) > 1 and lbelvs is not None): names = [names]
+        if isinstance(files[0], str):
+            if len(codes) == 1 and len(names) > 1 and lbelvs is not None: names = [names]
             dat = [load_stash(files, code, lbelvs, name, **kw).dat for code, name in zip(codes, names)]
-            if (len(codes) == 1): dat = dat[0]
+            if len(codes) == 1 and lbelvs is not None: dat = dat[0]
         else:            
             dat = [load_stash(file, codes[0], lbelvs, name, **kw).dat for file, name in zip(files, names)]
             
         dat = [i for i in dat if i is not None]
+        return(dat)
+
+    def load_group(self, files, codes, lbelvs, names,
+                   diff = False, total = False, scale = None, **kw):
+        
+        dat = self.load_group_cubes(files, codes, names, lbelvs, **kw)
+        
         for i in range(0, len(dat)):
             if (dat[i].coords()[0].long_name == 'pseudo_level'):
-                print('warning: ' + names[i] + ' has pseudo_levels')
+                print('warning: ' + names[i] + ' has pseudo_levels, which will be meaned')
                 dat[i] = dat[i].collapsed('pseudo_level', iris.analysis.MEAN)             
         
         if (scale is not None):
@@ -84,13 +90,15 @@ class open_plot_return(object):
             N = N
         
         if (TS): N = N + 1
-        plt.figure(figsize = (24 + max(0, (N - 3)/2),  12 + max(0, (M - 3)/2)))
+        if (N > 1 and M > 1):
+            plt.figure(figsize = (24 + max(0, (N - 3)/2),  12 + max(0, (M - 3)/2)))
+        else:
+            plt.figure(figsize = (12,  12))
         return N, M
 
     def plot_cubes(self, figName, title,
                    TS = True, TSMean = False, TSUnits = None, running_mean= False,
-                   levels = None, cmap = 'brewer_Greys_09', *args):   
-       
+                   levels = None, cmap = 'brewer_Greys_09', *args):    
         N, M = self.plot_setup(TS)
         
         plot_cubes_map(self.dat, N, M, levels, cmap = cmap, *args)        
@@ -101,8 +109,8 @@ class open_plot_return(object):
     
         plt.gcf().suptitle(title, fontsize=18, fontweight='bold')
 
-        git = 'repo: ' + git_info.url + '\n' + 'rev:  ' + git_info.rev
-        plt.gcf().text(.05, .67, git, rotation = 90)
+        git = 'rev:  ' + git_info.rev + '\n' + 'repo: ' + git_info.url
+        plt.gcf().text(.05, .95, git, rotation = 270, verticalalignment = "top")
 
         figName = 'figs/' + figName + '.png'
         makeDir(figName)
