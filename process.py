@@ -1,7 +1,6 @@
 import ConfigParser
 import json
 import sys
-import subprocess
 from   pdb   import set_trace as browser
 from   libs.grab_data import *
 from   libs.ConfigGet import ConfigGet
