@@ -1,6 +1,7 @@
 import ConfigParser
 import json
 import sys
+import subprocess
 from   pdb   import set_trace as browser
 from   libs.grab_data import *
 from   libs.ConfigGet import ConfigGet
@@ -12,7 +13,12 @@ ceh          = Config.Default("MachineInfo", "ceh", False, "boolean")
 if (ceh): import libs.import_iris
 from   libs.open_plot_return import *
 
-datDir       = Config.Default("FileInfo", "dir"         , default = 'data/')
+try:
+    datDirDefault = os.popen('echo $DATADIR').readlines()[0][:-1] +'/'
+except:
+    datDirDefault = 'data'
+
+datDir       = Config.Default("FileInfo", "dir"         , default = datDirDefault)
 jobs         = Config.Default("FileInfo", "job"         , asList = True)
 jdir         = Config.Default("FileInfo", "subDir"      )
 stream       = Config.Default("FileInfo", "Stream"      )
@@ -62,7 +68,9 @@ for section in Config.sections():
     FigTSUnits    =  Config.Default(section, "FigTSUnits")
     Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 else False, "boolean")
     
-    if (len(jobs) > 1 and (len(VarStashCodes) > 1 or len(VarLbelv) > 1)):
+    def lenNone(x): return(0 if x is None else len(x))
+    
+    if (len(jobs) > 1 and (lenNone(VarStashCodes) > 1 or lenNone(VarLbelv) > 1)):
         opr = []
         for job, datD in zip(jobs, datDirs):
             datDirt = datD if Stream is None else datD + Stream + '/'
@@ -95,6 +103,9 @@ for section in Config.sections():
     
         opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
                                diff = Diff, total = Total, scale = VarScaling)
-        opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean, running_mean, VarLevels, VarCmap)
+    
+        opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean,
+                       running_mean = running_mean,
+                       levels = VarLevels, cmap = VarCmap)
 
 
