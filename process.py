@@ -50,6 +50,8 @@ for section in Config.sections():
     FigCmap       =  Config.Default(section, "FigCmap"      , "brewer_Greys_09")
     FigdCmap      =  Config.Default(section, "FigdCmap"     , "brewer_Spectral_11")
     VarStashCodes =  Config.Default(section, "VarStashCodes", "required"       , asList = True)
+    FigLon        =  Config.Default(section, "FigLon"       , None, "float"    ) 
+    FigLat        =  Config.Default(section, "FigLat"       , None, "float"    ) 
     
     VarNames_default = jobs if (len(jobs) > 1 and len(VarStashCodes) == 1) else VarStashCodes
 	
@@ -65,9 +67,9 @@ for section in Config.sections():
     FigTS         =  Config.Default(section, "FigTS"        , True , "boolean" )
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
     FigTSUnits    =  Config.Default(section, "FigTSUnits")
-    Ratio         =  Config.Default(section, "FigRatio"        , False, "boolean" )
+    Ratio         =  Config.Default(section, "FigRatio"     , False, "boolean" )
     Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 and not Ratio else False, "boolean")
-    
+
     def lenNone(x): return(0 if x is None else len(x))
     
     if (len(jobs) > 1 and (lenNone(VarStashCodes) > 1 or lenNone(VarLbelv) > 1)):
@@ -77,8 +79,9 @@ for section in Config.sections():
             FigNamei = jdir + '/' +  job + '-' + FigName
             files = sort(listdir_path(datDirt))
             
-            opri = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
-                               diff = Diff, total = Total, ratio = Ratio, scale = VarScaling)
+            opri = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, 
+                                    FigLon, FigLat, FigUnits,
+                                    diff = Diff, total = Total, ratio = Ratio, scale = VarScaling)
             opri.plot_cubes(FigNamei, FigTitle + ' ' + job, FigTS, FigTSMean, FigTSUnits,
                             running_mean, VarLevels, VarCmap)
             opr.append(opri)
@@ -101,7 +104,8 @@ for section in Config.sections():
         FigName = jdir + '/' + FigName
 
     
-        opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
+        opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames,
+                               FigLon, FigLat, FigUnits,
                                diff = Diff, total = Total, scale = VarScaling)
     
         opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean,
