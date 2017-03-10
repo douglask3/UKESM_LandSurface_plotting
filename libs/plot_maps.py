@@ -12,20 +12,25 @@ from pdb import set_trace as browser
 from numpy import inf
 
 def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
-    if (lims is None):
+    def select_lims(prec, nlims):
         nlims0 = nlims
         for p in range(0,100 - nlims0):
             nlims = nlims0 + p
             lims  = np.percentile(dat.data[~np.isnan(dat.data)], range(0, 100, 100/nlims))
-            #lims = lims[lims != -inf]
+            
             if (lims[0]==-inf): lims.pop(0)
             
-            lims = [to_precision(i, 2) for i in lims]
+            lims = [to_precision(i, prec) for i in lims]
             lims = np.unique(lims)
             if (len(lims) >= nlims0): break
+        return lims
+    if (lims is None):
+        for prec in range(1,5):
+            lims = select_lims(prec, nlims)
+            if len(lims) > 3: break
+
         new_lims = True
     else:
-        nlims = len(lims) + 1
         new_lims = False
     if (lims[0] < 0.0):
         if (new_lims): 
@@ -33,7 +38,7 @@ def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
             if (sum(i < 0.0 for i in lims) > sum(i > 0.0 for i  in lims)):
                 # if more gt zero
                 lims = [i for i in lims if i < 0.0]
-                lims = np.concatenate((lims,-lims[::-1]))  
+                lims = np.concatenate((lims,[-i for i in lims[::-1]])) 
             else:
                 # if more lt zero
                 lims = [i for i in lims if i > 0.0]
