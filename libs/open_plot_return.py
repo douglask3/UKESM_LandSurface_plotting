@@ -18,10 +18,10 @@ from   pdb   import set_trace as browser
 
 class open_plot_return(object):
     def __init__(self, files = None, codes = None, lbelv = None, names = None,
-                 units  = None, dat = None, diff = False, total = False, **kw):
+                 units  = None, dat = None, diff = False, total = False, ratio = False,  **kw):
         if (dat is None):
             self.dat = self.load_group(files, codes, lbelv, names, diff,
-                                       total, units = units, **kw)
+                                       total, ratio, units = units, **kw)
         else:
             self.dat = dat 
 
@@ -40,7 +40,7 @@ class open_plot_return(object):
         return(dat)
 
     def load_group(self, files, codes, lbelvs, names,
-                   diff = False, total = False, scale = None, **kw):
+                   diff = False, total = False, ratio = False, scale = None, **kw):
         
         dat = self.load_group_cubes(files, codes, names, lbelvs, **kw)
         
@@ -62,18 +62,25 @@ class open_plot_return(object):
             tot.long_name = 'total'   
             dat.append(tot)
 
-        elif (diff and len(dat) == 2):       
-            nt = min(dat[0].shape[0], dat[1].shape[0])
+        elif (diff and len(dat) == 2):
+            try:       
+                nt = min(dat[0].shape[0], dat[1].shape[0])
 
-            dat[0] = dat[0][0:nt]
-            dat[1] = dat[1][0:nt]
+                dat[0] = dat[0][0:nt]
+                dat[1] = dat[1][0:nt]
             
-            diff = dat[1].copy() 
-            diff = diff - dat[0]
+                diff = dat[1].copy() 
+                diff = diff - dat[0]
 
-            diff.var_name  = 'difference'
-            diff.long_name = 'difference'
-            dat.append(diff)
+                diff.var_name = diff.long_name = 'difference'
+                dat.append(diff)
+            except:
+                warnings.warn('unable to calculate difference between cubes')
+
+        if ratio:
+            rat = iris.analysis.maths.divide(dat[0], dat[1])
+            rat.var_name = rat.long_name = 'ratio'
+            dat.append(rat)
 
         return dat
     
