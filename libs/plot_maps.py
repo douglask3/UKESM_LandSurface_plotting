@@ -16,8 +16,7 @@ def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
         nlims0 = nlims
         for p in range(0,100 - nlims0):
             nlims = nlims0 + p
-        
-            lims = np.percentile(dat.data[~np.isnan(dat.data)], range(0, 100, 100/nlims))
+            lims  = np.percentile(dat.data[~np.isnan(dat.data)], range(0, 100, 100/nlims))
             #lims = lims[lims != -inf]
             if (lims[0]==-inf): lims.pop(0)
             
@@ -48,11 +47,10 @@ def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
 def plot_cube(cube, N, M, n, levels = None, cmap = 'brewer_Greys_09'):
     
     plt.subplot(N, M, n, projection=ccrs.Robinson())
-    print cube.name()
-    try:
-        cube = cube.collapsed('time', iris.analysis.MEAN)
-    except:
-        cube = cube.collapsed('forecast_reference_time', iris.analysis.MEAN)
+    
+    if cube.ndim == 3:
+        cube[0].data = np.nanmean(cube.data, 0)
+        cube = cube[0]
     
     cmap = plt.get_cmap(cmap)   
     levels, extend = hist_limits(cube, levels, 7)
