@@ -65,7 +65,8 @@ for section in Config.sections():
     FigTS         =  Config.Default(section, "FigTS"        , True , "boolean" )
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
     FigTSUnits    =  Config.Default(section, "FigTSUnits")
-    Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 else False, "boolean")
+    Ratio         =  Config.Default(section, "FigRatio"        , False, "boolean" )
+    Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 and not Ratio else False, "boolean")
     
     def lenNone(x): return(0 if x is None else len(x))
     
@@ -77,7 +78,7 @@ for section in Config.sections():
             files = sort(listdir_path(datDirt))
             
             opri = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
-                               diff = Diff, total = Total, scale = VarScaling)
+                               diff = Diff, total = Total, ratio = Ratio, scale = VarScaling)
             opri.plot_cubes(FigNamei, FigTitle + ' ' + job, FigTS, FigTSMean, FigTSUnits,
                             running_mean, VarLevels, VarCmap)
             opr.append(opri)
