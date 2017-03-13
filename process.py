@@ -45,13 +45,18 @@ for section in Config.sections():
     if (section == 'FileInfo' or section == 'MachineInfo'): continue
     
     FigName       =  Config.Default(section, "FigName"      , section          )
-    FigTitle      =  Config.Default(section, "FigTitle"     , section          )
+    FigLon        =  Config.Default(section, "FigLon"       , None, "float"    ) 
+    FigLat        =  Config.Default(section, "FigLat"       , None, "float"    ) 
+    
+    titleDefault  = section + '\n'
+    if FigLon is not None: titleDefault += '| Longitude: ' + str(FigLon) + ' |'
+    if FigLat is not None: titleDefault += '| Latitude: '  + str(FigLat) + ' |' 
+
+    FigTitle      =  Config.Default(section, "FigTitle"     , titleDefault     )
     FigUnits      =  Config.Default(section, "FigUnits"                        )
     FigCmap       =  Config.Default(section, "FigCmap"      , "brewer_Greys_09")
     FigdCmap      =  Config.Default(section, "FigdCmap"     , "brewer_Spectral_11")
     VarStashCodes =  Config.Default(section, "VarStashCodes", "required"       , asList = True)
-    FigLon        =  Config.Default(section, "FigLon"       , None, "float"    ) 
-    FigLat        =  Config.Default(section, "FigLat"       , None, "float"    ) 
     
     VarNames_default = jobs if (len(jobs) > 1 and len(VarStashCodes) == 1) else VarStashCodes
 	
@@ -79,7 +84,7 @@ for section in Config.sections():
             datDirt = datD if Stream is None else datD + Stream + '/'
             FigNamei = jdir + '/' +  job + '-' + FigName
             files = sort(listdir_path(datDirt))
-            
+            print section
             opri = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, 
                                     FigLon, FigLat, FigUnits,
                                     diff = Diff, total = Total, ratio = Ratio, scale = VarScaling)
@@ -90,11 +95,13 @@ for section in Config.sections():
         opr[1].diff(opr[0], DiffN, jobs)
         
         cmaps = VardCmap
-        if DiffN is not None: [cmaps.insert(0, VarCmap[0]) for _ in range(2)]
-        
+        if DiffN is None:
+            FigTitle += ' differnce'
+        else:
+            [cmaps.insert(0, VarCmap[0]) for _ in range(2)]
        
         FigName = jdir + '/' + 'diff_' + jobs[1] + '-' + jobs[0] + FigName
-        opr[1].plot_cubes(FigName, FigTitle + ' differnce', FigTS, FigTSMean, FigTSUnits,
+        opr[1].plot_cubes(FigName, FigTitle, FigTS, FigTSMean, FigTSUnits,
                        running_mean, VardLevels, cmaps)
         
          
