@@ -94,7 +94,7 @@ for section in Config.sections():
         
         opr[1].diff(opr[0], DiffN, jobs)
         
-        cmaps = VardCmap
+        cmaps = VardCmap[:]
         if DiffN is None:
             FigTitle += ' differnce'
         else:
