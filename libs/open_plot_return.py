@@ -74,8 +74,7 @@ class open_plot_return(object):
             tot = dat[0].copy()
             for i in dat[1:]: tot.data += i.data
 
-            tot.var_name  = 'total'
-            tot.long_name = 'total'   
+            tot.var_name  = tot.long_name = 'total'   
             dat.append(tot)
 
         elif (diff and len(dat) == 2):
@@ -141,21 +140,31 @@ class open_plot_return(object):
 
         return self.dat
     
-    def diff(self, opr):
-        
+    def diff(self, opr, cubeN = None, names = None):
+            
         def diff_cube(cs1, cs2):
             if (cs1.ndim == 3 and cs2.ndim == 3):
-                nt = min(cs1.shape[0], cs2.shape[1])
+                nt = min(cs1.shape[0], cs2.shape[0])
+                print(nt)
                 cs1 = cs1[0:nt]
                 cs2 = cs2[0:nt]
             cs1.data = cs1.data - cs2.data
             return cs1
-
-        opr = opr.dat
-        ncubes = min(len(self.dat), len(opr))
-
-        cs1 = self.dat[0]
-        cs2 = opr[0]
         
-        self.dat = [diff_cube(self.dat[i], opr[i])for i in range(0, ncubes)] 
+        if cubeN is not None:
+            cs1 = self.dat[cubeN-1]
+            cs2 =  opr.dat[cubeN-1]
+            cs3 = diff_cube(cs1, cs2)
+            self.dat = [cs1, cs2, cs3]  
+            if names is not None:
+                names.append('difference')
+                for i,j in zip(self.dat, names): i.var_name = i.long_name = j
+        else:
+            opr = opr.dat
+            ncubes = min(len(self.dat), len(opr))
+
+            cs1 = self.dat[0]
+            cs2 = opr[0]
+        
+            self.dat = [diff_cube(self.dat[i], opr[i])for i in range(0, ncubes)] 
 

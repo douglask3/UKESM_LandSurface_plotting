@@ -69,6 +69,7 @@ for section in Config.sections():
     FigTSUnits    =  Config.Default(section, "FigTSUnits")
     Ratio         =  Config.Default(section, "FigRatio"     , False, "boolean" )
     Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 and not Ratio else False, "boolean")
+    DiffN         =  Config.Default(section, "FigVarNDiff"  , None,  "int"     )
 
     def lenNone(x): return(0 if x is None else len(x))
     
@@ -86,14 +87,17 @@ for section in Config.sections():
                             running_mean, VarLevels, VarCmap)
             opr.append(opri)
         
-        opr[1].diff(opr[0])
+        opr[1].diff(opr[0], DiffN, jobs)
         
-        ## needs new Levels and Cmap for diff.
+        cmaps = VardCmap
+        if DiffN is not None: [cmaps.insert(0, VarCmap[0]) for _ in range(2)]
+        
+       
         FigName = jdir + '/' + 'diff_' + jobs[1] + '-' + jobs[0] + FigName
         opr[1].plot_cubes(FigName, FigTitle + ' differnce', FigTS, FigTSMean, FigTSUnits,
-                       running_mean, VardLevels, VardCmap)
+                       running_mean, VardLevels, cmaps)
         
-        
+         
     else:
         ## find files
         files = []
