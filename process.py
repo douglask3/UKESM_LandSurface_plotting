@@ -95,14 +95,21 @@ for section in Config.sections():
         opr[1].diff(opr[0], DiffN, jobs)
         
         cmaps = VardCmap[:]
+        levels = [VardLevels]
+        
         if DiffN is None:
             FigTitle += ' differnce'
         else:
-            [cmaps.insert(0, VarCmap[0]) for _ in range(2)]
+            for _ in range(2):
+                cmaps.insert(0, VarCmap[0])
+                levels.insert(0, VarLevels)
+
        
         FigName = jdir + '/' + 'diff_' + jobs[1] + '-' + jobs[0] + FigName
+
+
         opr[1].plot_cubes(FigName, FigTitle, FigTS, FigTSMean, FigTSUnits,
-                       running_mean, VardLevels, cmaps)
+                       running_mean, levels, cmaps)
         
          
     else:

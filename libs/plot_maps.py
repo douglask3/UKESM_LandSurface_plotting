@@ -73,8 +73,15 @@ def plot_cubes_map(cubes, N, M, levels, cmap, *args):
     
     nplots = len(cubes) + 1
     if (type(cmap) is list and len(cmap) == 1): cmap = cmap[0]
-    for i in range(0, nplots - 1):    
-        cmapi = cmap if (type(cmap) is str) else cmap[i]    
-        plot_cube(cubes[i], N, M, i + 1, levels, cmapi   , *args)
+    for i in range(0, nplots - 1):
+        if levels is not None:
+            if type(levels) is list and len(levels) == 1 and levels[0] is None:
+                levelsi = None
+            else:
+                levelsi = levels[i] if type(levels[0]) is list or levels[0] is  None else levels            
+        else:
+            levelsi = None        
+        cmapi = cmap if type(cmap) is str else cmap[i]    
+        plot_cube(cubes[i], N, M, i + 1, levelsi, cmapi   , *args)
 
     
