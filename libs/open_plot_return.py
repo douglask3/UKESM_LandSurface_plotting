@@ -144,18 +144,29 @@ class open_plot_return(object):
             
         def diff_cube(cs1, cs2):
             if (cs1.ndim == 3 and cs2.ndim == 3):
-                nt = min(cs1.shape[0], cs2.shape[0])
-                print(nt)
-                cs1 = cs1[0:nt]
-                cs2 = cs2[0:nt]
-            cs1.data = cs1.data - cs2.data
-            return cs1
+                
+
+                t1 = cs1.coord('time').points
+                t2 = cs2.coord('time').points
+                tmin = np.max([t1.min(), t2.min()])
+                tmax = np.min([t1.max(), t2.max()])
+
+                t = np.unique(np.append(t1, t2))
+                t = t[t < tmax]
+                t = t[t > tmin]
+
+                cs1 = cs1.interpolate([('time', t)], iris.analysis.Linear())
+                cs2 = cs2.interpolate([('time', t)], iris.analysis.Linear())
+
+            cs3 = cs1.copy()
+            cs3.data = cs2.data - cs1.data
+            return [cs1, cs2, cs3]
         
         if cubeN is not None:
             cs1 = self.dat[cubeN-1]
             cs2 =  opr.dat[cubeN-1]
-            cs3 = diff_cube(cs1, cs2)
-            self.dat = [cs1, cs2, cs3]  
+            self.dat = diff_cube(cs1, cs2)
+              
             if names is not None:
                 names.append('difference')
                 for i,j in zip(self.dat, names): i.var_name = i.long_name = j
@@ -166,5 +177,5 @@ class open_plot_return(object):
             cs1 = self.dat[0]
             cs2 = opr[0]
         
-            self.dat = [diff_cube(self.dat[i], opr[i])for i in range(0, ncubes)] 
+            self.dat = [diff_cube(self.dat[i], opr[i])[2] for i in range(0, ncubes)] 
 
