@@ -1,9 +1,11 @@
 import ConfigParser
 import json
 import sys
-from   pdb   import set_trace as browser
+from   pdb            import set_trace as browser
 from   libs.grab_data import *
 from   libs.ConfigGet import ConfigGet
+from   libs.lenNone   import *
+from   libs.listdir_path import *
 import warnings
 
 Config = ConfigGet(sys.argv[1])
@@ -73,18 +75,18 @@ for section in Config.sections():
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
     FigTSUnits    =  Config.Default(section, "FigTSUnits")
     Ratio         =  Config.Default(section, "FigRatio"     , False, "boolean" )
-    Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 and not Ratio else False, "boolean")
-    DiffN         =  Config.Default(section, "FigVarNDiff"  , None,  "int"     )
+    Diff          =  Config.Default(section, "FigDiff"      ,
+                    True if len(jobs) == 2 and not Ratio else False, "boolean")
+    DiffN         =  Config.Default(section, "FigVarNDiff"  , None , "int"     )
 
-    def lenNone(x): return(0 if x is None else len(x))
-    
-    if (len(jobs) > 1 and (lenNone(VarStashCodes) > 1 or lenNone(VarLbelv) > 1)):
+            
+    if len(jobs) > 1 and (lenNone(VarStashCodes) > 1 or lenNone(VarLbelv) > 1):
         opr = []
         for job, datD in zip(jobs, datDirs):
-            datDirt = datD if Stream is None else datD + Stream + '/'
+
+            files = job if job[0] == '"' else listFiles(datD, Stream)
+            
             FigNamei = jdir + '/' +  job + '-' + FigName
-            files = sort(listdir_path(datDirt))
-            print section
             opri = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, 
                                     FigLon, FigLat, FigUnits,
                                     diff = Diff, total = Total, ratio = Ratio, scale = VarScaling)
@@ -113,11 +115,10 @@ for section in Config.sections():
         
          
     else:
-        ## find files
+        
         files = []
         for datD in datDirs:
-	    datDirt = datD if Stream is None else datD + Stream + '/'        
-	    files.append(sort(listdir_path(datDirt)))
+	    files = listFiles(datD, Stream, files)
        
         FigName = jdir + '/' + FigName
 

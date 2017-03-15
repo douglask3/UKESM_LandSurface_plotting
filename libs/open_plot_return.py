@@ -20,29 +20,38 @@ class open_plot_return(object):
     def __init__(self, files = None, codes = None, lbelv = None, names = None,
                  lon = None, lat = None,
                  units  = None, dat = None, diff = False, total = False, ratio = False,  **kw):
+
         if (dat is None):
-            dat = self.load_group(files, codes, lbelv, names, diff,
+            self.dat = self.load_group(files, codes, lbelv, names, diff,
                                        total, ratio, units = units, **kw)
         
+            
+        constrain2Region(lon, lat)
 
+
+    def constrain2Region(lon, lat):
         def coordRange2List(c, r):
             if c is not None:
                 if not isinstance(c, list) or len(c) == 1: c = [c, c]
             return c
-                
+
+        dat = self.dat
         self.lon = coordRange2List(lon, [-180, 180])
         self.lat = coordRange2List(lat, [-90 ,  90])
         
         def lonRange(cell): return self.lon[0] <= cell <= self.lon[1]
         def latRange(cell): return self.lat[0] <= cell <= self.lat[1]
 
-        if self.lon is not None: dat = [cube.extract(iris.Constraint(longitude = lonRange)) for cube in dat]
-        if self.lat is not None: dat = [cube.extract(iris.Constraint(latitude  = latRange)) for cube in dat]
+        if self.lon is not None:
+            dat = [cube.extract(iris.Constraint(longitude = lonRange)) for cube in dat]
+        if self.lat is not None:
+            dat = [cube.extract(iris.Constraint(latitude  = latRange)) for cube in dat]
         
         self.dat = dat
 
     
     def load_group_cubes(self, files, codes, names, lbelvs, **kw):
+        browser()
         if (len(files) == 1 and isinstance(files, list)): files = files[0] 
 
         if isinstance(files[0], str):
