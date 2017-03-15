@@ -92,7 +92,7 @@ for section in Config.sections():
                             running_mean, VarLevels, VarCmap)
             opr.append(opri)
         
-        opr[1].diff(opr[0], DiffN, jobs)
+        opr[1].diff(opr[0], DiffN, jobs.reverse())
         
         cmaps = VardCmap[:]
         levels = [VardLevels]
