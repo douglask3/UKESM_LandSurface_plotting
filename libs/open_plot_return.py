@@ -113,7 +113,7 @@ class open_plot_return(object):
         
         if (TS): N = N + 1
         if (N > 1 and M > 1):
-            plt.figure(figsize = (24 + max(0, (N - 3)/2),  12 + max(0, (M - 3)/2)))
+            plt.figure(figsize = (24 + max(0, (N - 3.0)/1.5),  12 + max(0, (M - 3.0)/2.0)))
         else:
             plt.figure(figsize = (12,  12))
         return N, M
@@ -168,7 +168,7 @@ class open_plot_return(object):
             self.dat = diff_cube(cs1, cs2)
               
             if names is not None:
-                names.append('difference')
+                names.append(names[1] + ' - ' + names[0])
                 for i,j in zip(self.dat, names): i.var_name = i.long_name = j
         else:
             opr = opr.dat
