@@ -92,7 +92,7 @@ for section in Config.sections():
                             running_mean, VarLevels, VarCmap)
             opr.append(opri)
         
-        opr[1].diff(opr[0], DiffN, jobs.reverse())
+        opr[0].diff(opr[1], DiffN, jobs)
         
         cmaps = VardCmap[:]
         levels = [VardLevels]
@@ -108,7 +108,7 @@ for section in Config.sections():
         FigName = jdir + '/' + 'diff_' + jobs[1] + '-' + jobs[0] + FigName
 
 
-        opr[1].plot_cubes(FigName, FigTitle, FigTS, FigTSMean, FigTSUnits,
+        opr[0].plot_cubes(FigName, FigTitle, FigTS, FigTSMean, FigTSUnits,
                        running_mean, levels, cmaps)
         
          

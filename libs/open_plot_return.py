@@ -24,7 +24,7 @@ class open_plot_return(object):
             dat = self.load_group(files, codes, lbelv, names, diff,
                                        total, ratio, units = units, **kw)
         
-
+        
         def coordRange2List(c, r):
             if c is not None:
                 if not isinstance(c, list) or len(c) == 1: c = [c, c]
@@ -78,19 +78,12 @@ class open_plot_return(object):
             dat.append(tot)
 
         elif (diff and len(dat) == 2):
-            try:       
-                nt = min(dat[0].shape[0], dat[1].shape[0])
-
-                dat[0] = dat[0][0:nt]
-                dat[1] = dat[1][0:nt]
-            
-                diff = dat[1].copy() 
-                diff = diff - dat[0]
-
-                diff.var_name = diff.long_name = 'difference'
-                dat.append(diff)
+            try:                       
+                dat = self.diff_cube(dat[0], dat[1])
+                dat[2].var_name = dat[2].long_name = 'diff'
             except:
                 warnings.warn('unable to calculate difference between cubes')
+                browser()
 
         if ratio:
             rat = iris.analysis.maths.divide(dat[0], dat[1])
@@ -122,7 +115,7 @@ class open_plot_return(object):
                    TS = True, TSMean = False, TSUnits = None, running_mean= False,
                    levels = None, cmap = 'brewer_Greys_09', *args):    
         N, M = self.plot_setup(TS)
-        
+        print figName
         plot_cubes_map(self.dat, N, M, levels, cmap = cmap, *args)        
     
         if (TS):
@@ -141,8 +134,26 @@ class open_plot_return(object):
         return self.dat
     
     def diff(self, opr, cubeN = None, names = None):
+        
+        if cubeN is not None:
+            cs1 = self.dat[cubeN-1]
+            cs2 =  opr.dat[cubeN-1]
+            self.dat = self.diff_cube(cs1, cs2)
             
-        def diff_cube(cs1, cs2):
+            if names is not None:
+                names.append(names[0] + '-' + names[1])
+                for i,j in zip(self.dat, names): i.var_name = i.long_name = j
+        else:
+            opr = opr.dat
+            ncubes = min(len(self.dat), len(opr))
+
+            cs1 = self.dat[0]
+            cs2 = opr[0]
+        
+            self.dat = [self.diff_cube(self.dat[i], opr[i])[2] for i in range(0, ncubes)] 
+
+
+    def diff_cube(self, cs1, cs2):
             if (cs1.ndim == 3 and cs2.ndim == 3):
                 
 
@@ -159,23 +170,5 @@ class open_plot_return(object):
                 cs2 = cs2.interpolate([('time', t)], iris.analysis.Linear())
 
             cs3 = cs1.copy()
-            cs3.data = cs2.data - cs1.data
+            cs3.data = cs1.data - cs2.data
             return [cs1, cs2, cs3]
-        
-        if cubeN is not None:
-            cs1 = self.dat[cubeN-1]
-            cs2 =  opr.dat[cubeN-1]
-            self.dat = diff_cube(cs1, cs2)
-              
-            if names is not None:
-                names.append(names[1] + ' - ' + names[0])
-                for i,j in zip(self.dat, names): i.var_name = i.long_name = j
-        else:
-            opr = opr.dat
-            ncubes = min(len(self.dat), len(opr))
-
-            cs1 = self.dat[0]
-            cs2 = opr[0]
-        
-            self.dat = [diff_cube(self.dat[i], opr[i])[2] for i in range(0, ncubes)] 
-
