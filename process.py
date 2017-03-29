@@ -61,10 +61,12 @@ for section in Config.sections():
     VarNames_default = jobs if (len(jobs) > 1 and len(VarStashCodes) == 1) else VarStashCodes
 	
     VarNames      =  Config.Default(section, "VarNames"     , VarNames_default    , asList = True)
+    plotNames     =  Config.Default(section, "plotNames"    , None                , asList = True)
     VarScaling    =  Config.Default(section, "VarScaling"   , 1.0  , "float"   )
     VarLbelv      =  Config.Default(section, "VarLbelv"     , None,  "int"     )
     VarLevels     =  Config.Default(section, "VarLevels"    , None,  "float"   )
     VardLevels    =  Config.Default(section, "VardLevels"   , None,  "float"   )
+    VarPlotN      =  Config.Default(section, "VarPlotN"     , None,  "int"        )
     VarCmap       =  Config.Default(section, "VarCmap"      , [FigCmap]           , asList = True)
     VardCmap      =  Config.Default(section, "VardCmap"     , [FigdCmap]          , asList = True)
     Total         =  Config.Default(section, "Total"        , False, "boolean" )
@@ -75,7 +77,7 @@ for section in Config.sections():
     Ratio         =  Config.Default(section, "FigRatio"     , False, "boolean" )
     Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 and not Ratio else False, "boolean")
     DiffN         =  Config.Default(section, "FigVarNDiff"  , None,  "int"     )
-
+    
     def lenNone(x): return(0 if x is None else len(x))
     
     if (len(jobs) > 1 and (lenNone(VarStashCodes) > 1 or lenNone(VarLbelv) > 1)):
@@ -85,7 +87,7 @@ for section in Config.sections():
             FigNamei = jdir + '/' +  job + '-' + FigName
             files = sort(listdir_path(datDirt))
             print section
-            opri = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, 
+            opri = open_plot_return(files, VarStashCodes, VarLbelv, VarPlotN, VarNames, plotNames,
                                     FigLon, FigLat, FigUnits,
                                     diff = Diff, total = Total, ratio = Ratio, scale = VarScaling)
             opri.plot_cubes(FigNamei, FigTitle + ' ' + job, FigTS, FigTSMean, FigTSUnits,
@@ -122,7 +124,7 @@ for section in Config.sections():
         FigName = jdir + '/' + FigName
 
     
-        opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames,
+        opr = open_plot_return(files, VarStashCodes, VarLbelv, VarPlotN, VarNames, plotNames,
                                FigLon, FigLat, FigUnits,
                                diff = Diff, total = Total, scale = VarScaling)
     

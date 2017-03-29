@@ -17,11 +17,11 @@ from   pdb   import set_trace as browser
 #############################################################################
 
 class open_plot_return(object):
-    def __init__(self, files = None, codes = None, lbelv = None, names = None,
-                 lon = None, lat = None,
+    def __init__(self, files = None, codes = None, lbelv = None, VarPlotN = None, names = None,
+                 plotNames = None, lon = None, lat = None,
                  units  = None, dat = None, diff = False, total = False, ratio = False,  **kw):
         if (dat is None):
-            dat = self.load_group(files, codes, lbelv, names, diff,
+            dat = self.load_group(files, codes, lbelv, VarPlotN, names, plotNames, diff,
                                        total, ratio, units = units, **kw)
         
         
@@ -42,23 +42,37 @@ class open_plot_return(object):
         self.dat = dat
 
     
-    def load_group_cubes(self, files, codes, names, lbelvs, **kw):
-        if (len(files) == 1 and isinstance(files, list)): files = files[0] 
-
+    def load_group_cubes(self, files, codes, names, lbelvs, VarPlotN, plotNames, **kw):
+        if len(files) == 1 and isinstance(files, list): files = files[0] 
         if isinstance(files[0], str):
-            if len(codes) == 1 and len(names) > 1 and lbelvs is not None: names = [names]
+            if len(codes) == 1 and len(names) > 1 and lbelvs is not None:
+                names = [names]
+                
             dat = [load_stash(files, code, lbelvs, name, **kw).dat for code, name in zip(codes, names)]
             if len(codes) == 1 and lbelvs is not None: dat = dat[0]
         else:            
-            dat = [load_stash(file, codes[0], lbelvs, name, **kw).dat for file, name in zip(files, names)]
+            dat = [load_stash(file, codes[0], lbelvs, name, **kw).dat for file, name in zip(files, names)]        
+        
+        if VarPlotN is not None:     
+            nplts = max(VarPlotN)
+            datOut = dat[0].copy()
+            datOut.data[:] = 0.0
+            datOut = [datOut.copy() for i in range(nplts)] 
+            for pn, cube in zip(VarPlotN, dat):
+                try: datOut[pn-1].data += cube.data
+                except: pass
             
+            if plotNames is None: plotNames = [str(i) for i in range(1, nplts + 1)]
+            for cube, pname in zip(datOut, plotNames): cube.long_name = cube.var_name = pname
+            dat = datOut
         dat = [i for i in dat if i is not None]
+        
         return(dat)
 
-    def load_group(self, files, codes, lbelvs, names,
+    def load_group(self, files, codes, lbelvs, VarPlotN, names, plotNames, 
                    diff = False, total = False, ratio = False, scale = None, **kw):
         
-        dat = self.load_group_cubes(files, codes, names, lbelvs, **kw)
+        dat = self.load_group_cubes(files, codes, names, lbelvs, VarPlotN, plotNames, **kw)
         
         for i in range(0, len(dat)):
             if (dat[i].coords()[0].long_name == 'pseudo_level'):
@@ -116,6 +130,7 @@ class open_plot_return(object):
                    levels = None, cmap = 'brewer_Greys_09', *args):    
         N, M = self.plot_setup(TS)
         print figName
+
         plot_cubes_map(self.dat, N, M, levels, cmap = cmap, *args)        
     
         if (TS):
