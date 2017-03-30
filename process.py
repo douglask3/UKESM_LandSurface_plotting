@@ -26,18 +26,20 @@ running_mean = Config.Default("FileInfo", "running_mean", False, 'boolean')
 
 datDirs = []
 for job in jobs:
-    if (job is None or stream is None):
+    if job is None or stream is None:
         sys.exit('either a local dir for ESM output, or a suite code and ouput stream need to be defined')
-    
+    if job[0] == '"':
+        datDirs.append(job)
+        continue
     datDiri = datDir + job + '/' + jdir + '/'
     datDirs.append(datDiri)
     ## collect stash codes
     stash = []
     for i in Config.sections():
         newStash = Config.Default(i, "VarStashCodes", asList = True)
-        if (newStash is not None): stash.extend(newStash)
+        if newStash is not None: stash.extend(newStash)
     
-    if (grab): grab_data(job, stream, stash, datDiri)    
+    if grab: grab_data(job, stream, stash, datDiri)    
 
 
 	
@@ -83,9 +85,12 @@ for section in Config.sections():
     if (len(jobs) > 1 and (lenNone(VarStashCodes) > 1 or lenNone(VarLbelv) > 1)):
         opr = []
         for job, datD in zip(jobs, datDirs):
-            datDirt = datD if Stream is None else datD + Stream + '/'
-            FigNamei = jdir + '/' +  job + '-' + FigName
-            files = sort(listdir_path(datDirt))
+            if datD[0] == '"':
+                files = datD[1:-1]
+            else:
+                datDirt = datD if Stream is None else datD + Stream + '/'
+                FigNamei = jdir + '/' +  job + '-' + FigName
+                files = sort(listdir_path(datDirt))
             print section
             opri = open_plot_return(files, VarStashCodes, VarLbelv, VarPlotN, VarNames, plotNames,
                                     FigLon, FigLat, FigUnits,

@@ -13,8 +13,8 @@ class load_stash(object):
         if (self.dat is not None):
 
             if (lbelvs is not None):
-                self.dat = [self.stash_levels(lbelv) for lbelv in lbelvs]
-            
+                self.dat = [self.stash_levels(lbelv, nc) for lbelv, nc in zip(lbelvs, range(len(lbelvs)))]
+            browser()
             #stick in function            
             if (isinstance(self.dat, list)):
                 for i in range(0, len(self.dat)):
@@ -30,7 +30,8 @@ class load_stash(object):
                 self.dat.standard_name = None
                 if (units is not None): self.dat.units = units 
 
-    def stash_code(self, files, code):    
+    def stash_code(self, files, code):  
+        
         try:
             codeNum = int(code)
             if   (len(code) == 5): code = 'm01s' + code[0:2] + 'i' + code[2:]
@@ -41,22 +42,45 @@ class load_stash(object):
         stash_constraint = iris.AttributeConstraint(STASH = code)    
         try:
             cube = iris.load(files, stash_constraint)
-            if len(cube) > 1:
-                warnings.warn('more then one instance of ' + 
-                              code + ' available. Choosing one with shortest time dimension')
-                nt = [i.coord('time').shape[0] for i in cube]
-                nt = np.where(nt == np.min(nt))[0][0]
-            else:
-                nt = 0
-            return cube[nt]
+            cube = self.checkMultipleInstances(cube)
+            return cube
         except:    
-            warnings.warn('unable to open variable: ' + code)
+            warninMss = 'unable to open variable: ' + code + '. '
+            try:
+                cube = iris.load(files)
+                cube = self.checkMultipleInstances(cube)
+                warninMss += 'Attempting a random opening not based on stash code. This may work for ancil comparison'
+                warnings.warn(warninMss)
+                return cube
+            except:
+                warningsMss = 'Nothing will be produced for this variable'
+                pass
+            warnings.warn(warninMss)
             pass 
 
-    def stash_levels(self, lbelv):
-        
+    def checkMultipleInstances(self, cube):
+        if len(cube) > 1:
+            warnings.warn('more then one instance of ' + 
+                          code + ' available. Choosing one with shortest time dimension')
+            nt = [i.coord('time').shape[0] for i in cube]
+            nt = np.where(nt == np.min(nt))[0][0]
+        else:
+            nt = 0
+        return cube[nt]
+    
+    def stash_levels(self, lbelv, nc):
+        print lbelv, nc
         index = np.where(self.dat.coord('pseudo_level').points == lbelv)[0]
-        cube  = self.dat[index][0]
 
-        return cube
+        if len(index) == 0:
+            warnings.warn('pseudo_levels do not match lbelv: ' + str(lbelv) + '. Attempting to continue with original order')
+            index = nc
+        else:
+            index = index[0]
+
+        try:
+            cube  = self.dat[index]
+            return cube
+        except:
+            pass
      

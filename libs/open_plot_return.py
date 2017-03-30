@@ -20,6 +20,7 @@ class open_plot_return(object):
     def __init__(self, files = None, codes = None, lbelv = None, VarPlotN = None, names = None,
                  plotNames = None, lon = None, lat = None,
                  units  = None, dat = None, diff = False, total = False, ratio = False,  **kw):
+        
         if (dat is None):
             dat = self.load_group(files, codes, lbelv, VarPlotN, names, plotNames, diff,
                                        total, ratio, units = units, **kw)
@@ -43,6 +44,7 @@ class open_plot_return(object):
 
     
     def load_group_cubes(self, files, codes, names, lbelvs, VarPlotN, plotNames, **kw):
+        
         if len(files) == 1 and isinstance(files, list): files = files[0] 
         if isinstance(files[0], str):
             if len(codes) == 1 and len(names) > 1 and lbelvs is not None:
@@ -52,7 +54,7 @@ class open_plot_return(object):
             if len(codes) == 1 and lbelvs is not None: dat = dat[0]
         else:            
             dat = [load_stash(file, codes[0], lbelvs, name, **kw).dat for file, name in zip(files, names)]        
-        
+        browser()
         if VarPlotN is not None:     
             nplts = max(VarPlotN)
             datOut = dat[0].copy()
