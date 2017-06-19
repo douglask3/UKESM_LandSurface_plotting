@@ -34,7 +34,7 @@ def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
             if (sum(i < 0.0 for i in lims) > sum(i > 0.0 for i  in lims)):
                 # if more gt zero
                 lims = [i for i in lims if i < 0.0]
-                lims = np.concatenate((lims,-lims[::-1]))  
+                lims = np.concatenate((lims,[-i for i in lims[::-1]]))  
             else:
                 # if more lt zero
                 lims = [i for i in lims if i > 0.0]
