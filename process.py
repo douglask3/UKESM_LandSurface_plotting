@@ -61,6 +61,7 @@ for section in Config.sections():
     VarCmap       =  Config.Default(section, "VarCmap"      , [FigCmap]           , asList = True)
     VardCmap      =  Config.Default(section, "VardCmap"     , [FigdCmap]          , asList = True)
     Total         =  Config.Default(section, "Total"        , False, "boolean" )
+    TotalOnly     =  Config.Default(section, "TotalOnly"    , False, "boolean" )
     Stream        =  Config.Default(section, "Stream"                          )
     FigTS         =  Config.Default(section, "FigTS"        , True , "boolean" )
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
@@ -79,7 +80,8 @@ for section in Config.sections():
             files = sort(listdir_path(datDirt))
             
             opri = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
-                               diff = Diff, total = Total, scale = VarScaling,
+                               diff = Diff, total = Total, totalOnly = TotalOnly,
+                               scale = VarScaling,
                                change = Change, accumulate = Accumulate)
             opri.plot_cubes(FigNamei, FigTitle + ' ' + job, FigTS, FigTSMean, FigTSUnits,
                             running_mean, VarLevels, VarCmap)
@@ -104,7 +106,8 @@ for section in Config.sections():
 
     
         opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
-                               diff = Diff, total = Total, scale = VarScaling,
+                               diff = Diff, total = Total, totalOnly = TotalOnly,
+                               scale = VarScaling,
                                change = Change, accumulate = Accumulate)
     
         opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean,

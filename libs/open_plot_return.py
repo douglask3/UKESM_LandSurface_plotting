@@ -40,7 +40,8 @@ class open_plot_return(object):
         return(dat)
 
     def load_group(self, files, codes, lbelvs, names,
-                   diff = False, total = False, scale = None, 
+                   diff = False, total = False, totalOnly = False, 
+                   scale = None, 
                    change = False, accumulate = False, **kw):
         
         dat = self.load_group_cubes(files, codes, names, lbelvs, **kw)
@@ -60,8 +61,11 @@ class open_plot_return(object):
             for i in dat[1:]: tot.data += i.data
 
             tot.var_name  = 'total'
-            tot.long_name = 'total'   
-            dat.append(tot)
+            tot.long_name = 'total' 
+            if totalOnly:
+                dat = [tot]
+            else:  
+                dat.append(tot)
 
         elif diff and len(dat) == 2:       
             nt = min(dat[0].shape[0], dat[1].shape[0])
