@@ -18,21 +18,12 @@ from   pdb   import set_trace as browser
 
 class open_plot_return(object):
     def __init__(self, files = None, codes = None, lbelv = None, names = None,
-                 units  = None, dat = None, diff = False, total = False, change = False, **kw):
+                 units  = None, dat = None, diff = False, total = False, **kw):
         if (dat is None):
             self.dat = self.load_group(files, codes, lbelv, names, diff,
                                        total, units = units, **kw)
         else:
             self.dat = dat
-        
-        if change:
-            varname  = [i.var_name  for i in self.dat]
-            longname = [i.long_name for i in self.dat]
-            for i in range(len(self.dat)):
-                self.dat[i] -= self.dat[i][0]
-                self.dat[i].var_name  = varname[i]
-                self.dat[i].long_name = longname[i]
-        
 
     
     def load_group_cubes(self, files, codes, names, lbelvs, **kw):
@@ -49,7 +40,8 @@ class open_plot_return(object):
         return(dat)
 
     def load_group(self, files, codes, lbelvs, names,
-                   diff = False, total = False, scale = None, **kw):
+                   diff = False, total = False, scale = None, 
+                   change = False, accumulate = False, **kw):
         
         dat = self.load_group_cubes(files, codes, names, lbelvs, **kw)
         
@@ -63,7 +55,7 @@ class open_plot_return(object):
                 sc = scale[i] if type(scale) is list else scale
                 dat[i].data = dat[i].data * sc   
         
-        if (total):
+        if total:
             tot = dat[0].copy()
             for i in dat[1:]: tot.data += i.data
 
@@ -71,7 +63,7 @@ class open_plot_return(object):
             tot.long_name = 'total'   
             dat.append(tot)
 
-        elif (diff and len(dat) == 2):       
+        elif diff and len(dat) == 2:       
             nt = min(dat[0].shape[0], dat[1].shape[0])
 
             dat[0] = dat[0][0:nt]
@@ -83,6 +75,18 @@ class open_plot_return(object):
             diff.var_name  = 'difference'
             diff.long_name = 'difference'
             dat.append(diff)
+
+        if change:
+            varname  = [i.var_name  for i in dat]
+            longname = [i.long_name for i in dat]
+            for i in range(len(dat)):
+                dat[i] -= dat[i][0]
+                dat[i].var_name  = varname[i]
+                dat[i].long_name = longname[i]
+        
+        if accumulate:
+            for i in range(len(dat)):
+                for t in range(1, dat[i].shape[0]): dat[i].data[t] += dat[i].data[t-1]
 
         return dat
     
