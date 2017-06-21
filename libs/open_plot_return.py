@@ -18,12 +18,21 @@ from   pdb   import set_trace as browser
 
 class open_plot_return(object):
     def __init__(self, files = None, codes = None, lbelv = None, names = None,
-                 units  = None, dat = None, diff = False, total = False, **kw):
+                 units  = None, dat = None, diff = False, total = False, change = False, **kw):
         if (dat is None):
             self.dat = self.load_group(files, codes, lbelv, names, diff,
                                        total, units = units, **kw)
         else:
-            self.dat = dat 
+            self.dat = dat
+        
+        if change:
+            varname  = [i.var_name  for i in self.dat]
+            longname = [i.long_name for i in self.dat]
+            for i in range(len(self.dat)):
+                self.dat[i] -= self.dat[i][0]
+                self.dat[i].var_name  = varname[i]
+                self.dat[i].long_name = longname[i]
+        
 
     
     def load_group_cubes(self, files, codes, names, lbelvs, **kw):
@@ -51,7 +60,7 @@ class open_plot_return(object):
         
         if (scale is not None):
             for i in range(0, len(dat)): 
-                sc = scale[i] if scale is list else scale
+                sc = scale[i] if type(scale) is list else scale
                 dat[i].data = dat[i].data * sc   
         
         if (total):
