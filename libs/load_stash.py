@@ -6,7 +6,8 @@ from pdb import set_trace as browser
 
 
 class load_stash(object):
-    def __init__(self, files, code, lbelvs, name, units = None):
+    def __init__(self, files, code, lbelvs, name, units = None,
+                 change = False, accumulate = False):
         
         self.dat = self.stash_code(files, code)
         
@@ -29,7 +30,19 @@ class load_stash(object):
                 self.dat.long_name     = name
                 self.dat.standard_name = None
                 if (units is not None): self.dat.units = units 
-
+            
+            if change:
+                varname  = self.dat.var_name
+                longname = self.dat.long_name
+                self.dat -= self.dat[0]                
+                self.dat = self.dat[1:]
+                self.dat.var_name  = varname
+                self.dat.long_name = longname
+        
+            if accumulate:
+                self.dat.data[0] = 0.0
+                for t in range(1, self.dat.shape[0]): self.dat.data[t] += self.dat.data[t-1]
+                
     def stash_code(self, files, code):    
         try:
             codeNum = int(code)

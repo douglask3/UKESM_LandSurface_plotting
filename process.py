@@ -67,8 +67,11 @@ for section in Config.sections():
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
     FigTSUnits    =  Config.Default(section, "FigTSUnits")
     Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 else False, "boolean")
-    Change        =  Config.Default(section, "FigChange"    , False, "boolean" )
-    Accumulate    =  Config.Default(section, "FigAccumulate", False, "boolean" )
+    FigChange     =  Config.Default(section, "FigChange"    , False, "boolean" )
+    FigAccumulate =  Config.Default(section, "FigAccumulate", False, "boolean" )
+    
+    Change        =  Config.Default(section, "VarChange"    , [FigChange], "boolean" )
+    Accumulate    =  Config.Default(section, "VarAccumulate", [FigAccumulate], "boolean" )
     
     def lenNone(x): return(0 if x is None else len(x))
     
@@ -104,7 +107,8 @@ for section in Config.sections():
        
         FigName = jdir + '/' + FigName
 
-    
+        print("wow")
+        
         opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
                                diff = Diff, total = Total, totalOnly = TotalOnly,
                                scale = VarScaling,

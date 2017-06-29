@@ -26,23 +26,27 @@ class open_plot_return(object):
             self.dat = dat
 
     
-    def load_group_cubes(self, files, codes, names, lbelvs, **kw):
-        if (len(files) == 1 and isinstance(files, list)): files = files[0] 
+    def load_group_cubes(self, files, codes, names, lbelvs, 
+                   change = False, accumulate = False, **kw):
 
+        if len(files) == 1 and isinstance(files, list): files = files[0] 
+
+        if len(change) == 1 and len(codes) > 1 : change = change * len(codes)
+        if len(accumulate) == 1 and len(codes) > 1 : accumulate = accumulate * len(codes)
+        
         if isinstance(files[0], str):
             if len(codes) == 1 and len(names) > 1 and lbelvs is not None: names = [names]
-            dat = [load_stash(files, code, lbelvs, name, **kw).dat for code, name in zip(codes, names)]
+            dat = [load_stash(files, code, lbelvs, name, change = ch, accumulate = acc, **kw).dat for code, name, ch, acc in zip(codes, names, change, accumulate)]
             if len(codes) == 1 and lbelvs is not None: dat = dat[0]
         else:            
-            dat = [load_stash(file, codes[0], lbelvs, name, **kw).dat for file, name in zip(files, names)]
+            dat = [load_stash(file, codes[0], lbelvs, name, change = change[0], accumulate = accumulate[0], **kw).dat for file, name in zip(files, names)]
             
         dat = [i for i in dat if i is not None]
         return(dat)
 
     def load_group(self, files, codes, lbelvs, names,
                    diff = False, total = False, totalOnly = False, 
-                   scale = None, 
-                   change = False, accumulate = False, **kw):
+                   scale = None, **kw):
         
         dat = self.load_group_cubes(files, codes, names, lbelvs, **kw)
         
@@ -57,8 +61,9 @@ class open_plot_return(object):
                 dat[i].data = dat[i].data * sc   
         
         if total:
-            tot = dat[0].copy()
-            for i in dat[1:]: tot.data += i.data
+            nt = min([i.shape[0] for i in dat])
+            tot = dat[0][0:nt].copy()
+            for i in dat[1:]: tot.data += i[0:nt].data
 
             tot.var_name  = 'total'
             tot.long_name = 'total' 
@@ -78,19 +83,7 @@ class open_plot_return(object):
 
             diff.var_name  = 'difference'
             diff.long_name = 'difference'
-            dat.append(diff)
-
-        if change:
-            varname  = [i.var_name  for i in dat]
-            longname = [i.long_name for i in dat]
-            for i in range(len(dat)):
-                dat[i] -= dat[i][0]
-                dat[i].var_name  = varname[i]
-                dat[i].long_name = longname[i]
-        
-        if accumulate:
-            for i in range(len(dat)):
-                for t in range(1, dat[i].shape[0]): dat[i].data[t] += dat[i].data[t-1]
+            dat.append(diff) 
 
         return dat
     
