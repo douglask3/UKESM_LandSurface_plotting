@@ -61,9 +61,12 @@ class open_plot_return(object):
                 dat[i].data = dat[i].data * sc   
         
         if total:
-            nt = min([i.shape[0] for i in dat])
-            tot = dat[0][0:nt].copy()
-            for i in dat[1:]: tot.data += i[0:nt].data
+            times = dat[0].coord('time').points
+            for i in dat[1:]: times = np.intersect1d(times, i.coord('time').points)
+            dat = [i.extract(iris.Constraint(time = times)) for i in dat]
+            
+            tot = dat[0].copy()
+            for i in dat[1:]: tot.data += i.data
 
             tot.var_name  = 'total'
             tot.long_name = 'total' 
