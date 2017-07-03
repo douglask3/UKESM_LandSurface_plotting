@@ -61,8 +61,11 @@ def plot_cube(cube, N, M, n, levels = None, cmap = 'brewer_Greys_09'):
         norm = BoundaryNorm(levels, ncolors=cmap.N - 1)
     else:
         norm = BoundaryNorm(levels, ncolors=cmap.N)
-    
-    qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm, extend = extend)
+     
+    try:
+        qplt.pcolormesh(cube, cmap = cmap, norm = norm)
+    except:
+        browser()
     plt.gca().coastlines()
     
 
