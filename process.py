@@ -109,7 +109,6 @@ for section in Config.sections():
        
         FigName = jdir + '/' + 'diff_' + jobs[1] + '-' + jobs[0] + FigName
 
-
         opr[0].plot_cubes(FigName, FigTitle, FigTS, FigTSMean, FigTSUnits,
                        running_mean, levels, cmaps)
         
@@ -128,6 +127,7 @@ for section in Config.sections():
                                FigLon, FigLat, FigUnits,
                                diff = Diff, total = Total, scale = VarScaling)
     
+        if len(jobs) == 2 and Diff: VarLevels = [VarLevels, VarLevels, VardLevels]
         opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean,
                        running_mean = running_mean,
                        levels = VarLevels, cmap = VarCmap)
