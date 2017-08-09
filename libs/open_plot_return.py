@@ -127,8 +127,10 @@ class open_plot_return(object):
 
         figName = 'figs/' + figName + '.png'
         makeDir(figName)
-        plt.savefig(figName, bbox_inches='tight')
-
+        try:
+            plt.savefig(figName, bbox_inches='tight')
+        except:
+            browser()
         return self.dat
     
     def diff(self, opr):
