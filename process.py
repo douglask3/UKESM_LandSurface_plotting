@@ -107,7 +107,7 @@ for section in Config.sections():
         opr[1].diff(opr[0])
         
         ## needs new Levels and Cmap for diff.
-        FigName = jdir + '/' + 'diff_' + jobs[1] + '-' + jobs[0] + FigName
+        FigName = fdir + '/' + 'diff_' + jobs[1] + '-' + jobs[0] + FigName
         opr[1].plot_cubes(FigName, FigTitle + ' differnce', FigTS, FigTSMean, FigTSUnits,
                        running_mean, VardLevels, VardCmap)
         
@@ -119,7 +119,7 @@ for section in Config.sections():
 	    datDirt = datD if Stream is None else datD + Stream + '/'        
 	    files.append(sort(listdir_path(datDirt)))
        
-        FigName = jdir + '/' + FigName
+        FigName = fdir + '/' + FigName
         
         opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
                                diff = Diff, total = Total, totalOnly = TotalOnly,
