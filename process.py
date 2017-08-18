@@ -25,7 +25,6 @@ grab         = Config.Default("FileInfo", "grab"        , True,  "boolean")
 running_mean = Config.Default("FileInfo", "running_mean", False, 'boolean')
 namelistDoc  = Config.Default("FileInfo", "namelistDoc" , "")
 namelists    = Config.Default("FileInfo", "namelist"    , [""]    , asList = True)
-fdir         = Config.Default("FileInfo", "figsDir"     , jdir)
 
 namelists = [namelistDoc + '/' + i for i in namelists]
 with open('temp/fullNamelist.ini', 'w') as fullNL:
@@ -37,6 +36,8 @@ with open('temp/fullNamelist.ini', 'w') as fullNL:
             pass
 
 Config = ConfigGet('temp/fullNamelist.ini')
+fdir   = Config.Default("FileInfo", "figsDir"     , jdir)
+
 datDirs = []
 for job in jobs:
     if (job is None or stream is None):
@@ -119,8 +120,6 @@ for section in Config.sections():
 	    files.append(sort(listdir_path(datDirt)))
        
         FigName = jdir + '/' + FigName
-
-        print("wow")
         
         opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
                                diff = Diff, total = Total, totalOnly = TotalOnly,
