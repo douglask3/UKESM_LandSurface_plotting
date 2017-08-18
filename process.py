@@ -23,7 +23,20 @@ jdir         = Config.Default("FileInfo", "subDir"      )
 stream       = Config.Default("FileInfo", "Stream"      )
 grab         = Config.Default("FileInfo", "grab"        , True,  "boolean")
 running_mean = Config.Default("FileInfo", "running_mean", False, 'boolean')
+namelistDoc  = Config.Default("FileInfo", "namelistDoc" , "")
+namelists    = Config.Default("FileInfo", "namelist"    , [""]    , asList = True)
+fdir         = Config.Default("FileInfo", "figsDir"     , jdir)
 
+namelists = [namelistDoc + '/' + i for i in namelists]
+with open('temp/fullNamelist.ini', 'w') as fullNL:
+    for file in sys.argv[1:] + namelists:
+        try:
+            for line in open (file, 'r'):
+                fullNL.write(line)
+        except:
+            pass
+
+Config = ConfigGet('temp/fullNamelist.ini')
 datDirs = []
 for job in jobs:
     if (job is None or stream is None):
@@ -79,7 +92,7 @@ for section in Config.sections():
         opr = []
         for job, datD in zip(jobs, datDirs):
             datDirt = datD if Stream is None else datD + Stream + '/'
-            FigNamei = jdir + '/' +  job + '-' + FigName
+            FigNamei = fdir + '/' +  job + '-' + FigName
             files = sort(listdir_path(datDirt))
             
             opri = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
@@ -117,5 +130,7 @@ for section in Config.sections():
         opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean,
                        running_mean = running_mean,
                        levels = VarLevels, cmap = VarCmap)
+    
+    fdir         = Config.Default(section, "figsDir"     , fdir)
 
 
