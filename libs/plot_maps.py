@@ -67,7 +67,7 @@ def plot_cube(cube, N, M, n, levels = None, cmap = 'brewer_Greys_09'):
         norm = BoundaryNorm(levels, ncolors=cmap.N)
     
     try:
-        qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm)
+        qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm, extend = extend)
     except:
         qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm)
     
