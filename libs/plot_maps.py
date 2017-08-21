@@ -42,6 +42,10 @@ def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
         extend = 'both'
     else:
         extend = 'max'
+
+    if len(lims) == 1: 
+        lims = [-0.0001, -0.000001, 0.000001, 0.0001] if lims == 0.0 else [lims[0] * (1 + i) for i in [-0.1, -0.01, 0.01, 0.1]]
+        extend = 'neither'
     return (lims, extend)
 
 
@@ -62,7 +66,11 @@ def plot_cube(cube, N, M, n, levels = None, cmap = 'brewer_Greys_09'):
     else:
         norm = BoundaryNorm(levels, ncolors=cmap.N)
     
-    qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm, extend = extend)
+    try:
+        qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm)
+    except:
+        qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm)
+    
     plt.gca().coastlines()
     
 

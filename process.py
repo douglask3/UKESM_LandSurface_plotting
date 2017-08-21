@@ -118,9 +118,9 @@ for section in Config.sections():
         for datD in datDirs:
 	    datDirt = datD if Stream is None else datD + Stream + '/'        
 	    files.append(sort(listdir_path(datDirt)))
-       
-        FigName = fdir + '/' + FigName
         
+        FigName = fdir + '/' + FigName
+        if len(jobs) > 1 and len(VarNames): VarNames = [VarNames[0] + '-' + i for i in jobs]
         opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
                                diff = Diff, total = Total, totalOnly = TotalOnly,
                                scale = VarScaling,

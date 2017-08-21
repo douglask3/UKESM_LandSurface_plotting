@@ -24,11 +24,11 @@ class open_plot_return(object):
                                        total, units = units, **kw)
         else:
             self.dat = dat
-
+        
     
     def load_group_cubes(self, files, codes, names, lbelvs, 
                    change = False, accumulate = False, **kw):
-
+        
         if len(files) == 1 and isinstance(files, list): files = files[0] 
 
         if len(change) == 1 and len(codes) > 1 : change = change * len(codes)
@@ -38,9 +38,8 @@ class open_plot_return(object):
             if len(codes) == 1 and len(names) > 1 and lbelvs is not None: names = [names]
             dat = [load_stash(files, code, lbelvs, name, change = ch, accumulate = acc, **kw).dat for code, name, ch, acc in zip(codes, names, change, accumulate)]
             if len(codes) == 1 and lbelvs is not None: dat = dat[0]
-        else:            
-            dat = [load_stash(file, codes[0], lbelvs, name, change = change[0], accumulate = accumulate[0], **kw).dat for file, name in zip(files, names)]
-            
+        else:           
+            dat = [load_stash(file, codes[0], lbelvs, name, change = change[0], accumulate = accumulate[0], **kw).dat for file, name in zip(files, names)]    
         dat = [i for i in dat if i is not None]
         return(dat)
 
