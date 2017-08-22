@@ -1,6 +1,6 @@
 import ConfigParser
 import json
-import sys
+import sys, os
 from   pdb   import set_trace as browser
 from   libs.grab_data import *
 from   libs.ConfigGet import ConfigGet
@@ -37,6 +37,7 @@ with open('temp/fullNamelist.ini', 'w') as fullNL:
 
 Config = ConfigGet('temp/fullNamelist.ini')
 fdir   = Config.Default("FileInfo", "figsDir"     , jdir)
+os.system('rm -r figs/' + fdir + '/*')
 
 datDirs = []
 for job in jobs:
@@ -130,6 +131,12 @@ for section in Config.sections():
                        running_mean = running_mean,
                        levels = VarLevels, cmap = VarCmap)
     
-    fdir         = Config.Default(section, "figsDir"     , fdir)
+    fdirNew         = Config.Default(section, "figsDir"     , fdir)
 
+    if fdirNew != fdir:
+        os.system('convert $(ls -dr figs/' + fdir + '/*) figs/' + fdir +'.pdf')
+        fdir = fdirNew
+        os.system('rm -r figs/' + fdir + '/*')
+        
 
+os.system('convert $(ls -dr figs/' + fdir + '/*) figs/' + fdir +'.pdf')
