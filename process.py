@@ -127,6 +127,9 @@ for section in Config.sections():
                                scale = VarScaling,
                                change = Change, accumulate = Accumulate)
         
+        if len(jobs) == 2 and Diff:
+            VarLevels = [VarLevels, VarLevels, VardLevels]
+            if len(VarCmap) == 1: VarCmap   = [VarCmap[0]  , VarCmap[0]  , VardCmap[0]  ]
         opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean,
                        running_mean = running_mean,
                        levels = VarLevels, cmap = VarCmap)
