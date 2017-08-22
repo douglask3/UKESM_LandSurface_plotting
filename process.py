@@ -121,12 +121,12 @@ for section in Config.sections():
 	    files.append(sort(listdir_path(datDirt)))
         
         FigName = fdir + '/' + FigName
-        if len(jobs) > 1 and len(VarNames): VarNames = [VarNames[0] + '-' + i for i in jobs]
+        if len(jobs) > 1 and len(VarNames) == 1: VarNames = [VarNames[0] + '-' + i for i in jobs]
         opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
                                diff = Diff, total = Total, totalOnly = TotalOnly,
                                scale = VarScaling,
                                change = Change, accumulate = Accumulate)
-    
+        
         opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean,
                        running_mean = running_mean,
                        levels = VarLevels, cmap = VarCmap)
