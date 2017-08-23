@@ -20,6 +20,7 @@ except:
 datDir       = Config.Default("FileInfo", "dir"         , default = datDirDefault)
 jobs         = Config.Default("FileInfo", "job"         , asList = True)
 jdir         = Config.Default("FileInfo", "subDir"      )
+fdirSub      = Config.Default("FileInfo", "figSubDir"   )
 stream       = Config.Default("FileInfo", "Stream"      )
 grab         = Config.Default("FileInfo", "grab"        , True,  "boolean")
 running_mean = Config.Default("FileInfo", "running_mean", False, 'boolean')
@@ -36,7 +37,7 @@ with open('temp/fullNamelist.ini', 'w') as fullNL:
             pass
 
 Config = ConfigGet('temp/fullNamelist.ini')
-fdir   = Config.Default("FileInfo", "figsDir"     , jdir)
+fdir   = fdirSub + '/' + Config.Default("FileInfo", "figsDir"     , jdir)
 os.system('rm -r figs/' + fdir + '/*')
 
 datDirs = []
@@ -134,7 +135,7 @@ for section in Config.sections():
                        running_mean = running_mean,
                        levels = VarLevels, cmap = VarCmap)
     
-    fdirNew         = Config.Default(section, "figsDir"     , fdir)
+    fdirNew         = fdirSub + '/' + Config.Default(section, "figsDir"     , fdir)
 
     if fdirNew != fdir:
         os.system('convert $(ls -dr figs/' + fdir + '/*) figs/' + fdir +'.pdf')
@@ -142,4 +143,4 @@ for section in Config.sections():
         os.system('rm -r figs/' + fdir + '/*')
         
 
-os.system('convert $(ls -dr figs/' + fdir + '/*) figs/' + fdir +'.pdf')
+os.system('convert $(ls -dr figs/' + fdir + '/*) figs/' + fdir + '-' + fdirSub + '.pdf')
