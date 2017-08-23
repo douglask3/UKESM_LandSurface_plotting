@@ -139,6 +139,7 @@ for section in Config.sections():
     fdirNew         = Config.Default(section, "figsDir"     , fdir0)
 
     if fdirNew != fdir0:
+        fdir0 = fdirNew
         fdirNew = fdirSub + '/' + fdirNew
         os.system('convert $(ls -dr figs/' + fdir + '/*) figs/' + fdir + '-' + fdirSub + '.pdf')
         fdir = fdirNew
