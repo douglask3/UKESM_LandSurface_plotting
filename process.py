@@ -37,7 +37,8 @@ with open('temp/fullNamelist.ini', 'w') as fullNL:
             pass
 
 Config = ConfigGet('temp/fullNamelist.ini')
-fdir   = fdirSub + '/' + Config.Default("FileInfo", "figsDir"     , jdir)
+fdir0  = Config.Default("FileInfo", "figsDir"     , jdir)
+fdir   = fdirSub + '/' + fdir0
 os.system('rm -r figs/' + fdir + '/*')
 
 datDirs = []
@@ -135,10 +136,11 @@ for section in Config.sections():
                        running_mean = running_mean,
                        levels = VarLevels, cmap = VarCmap)
     
-    fdirNew         = fdirSub + '/' + Config.Default(section, "figsDir"     , fdir)
+    fdirNew         = Config.Default(section, "figsDir"     , fdir0)
 
-    if fdirNew != fdir:
-        os.system('convert $(ls -dr figs/' + fdir + '/*) figs/' + fdir +'.pdf')
+    if fdirNew != fdir0:
+        fdirNew = fdirSub + '/' + fdirNew
+        os.system('convert $(ls -dr figs/' + fdir + '/*) figs/' + fdir + '-' + fdirSub + '.pdf')
         fdir = fdirNew
         os.system('rm -r figs/' + fdir + '/*')
         
