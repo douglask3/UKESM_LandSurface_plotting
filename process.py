@@ -73,6 +73,7 @@ for section in Config.sections():
     FigUnits      =  Config.Default(section, "FigUnits"                        )
     FigCmap       =  Config.Default(section, "FigCmap"      , "brewer_Greys_09")
     FigdCmap      =  Config.Default(section, "FigdCmap"     , "brewer_Spectral_11")
+    FigrCmap      =  Config.Default(section, "FigrCmap"     , "brewer_Spectral_11")
     VarStashCodes =  Config.Default(section, "VarStashCodes", "required"       , asList = True)
     
     VarNames_default = jobs if (len(jobs) > 1 and len(VarStashCodes) == 1) else VarStashCodes
@@ -83,9 +84,11 @@ for section in Config.sections():
     VarLbelv      =  Config.Default(section, "VarLbelv"     , None,  "int"     )
     VarLevels     =  Config.Default(section, "VarLevels"    , None,  "float"   )
     VardLevels    =  Config.Default(section, "VardLevels"   , None,  "float"   )
+    VarrLevels    =  Config.Default(section, "VarrLevels"   , VardLevels,  "float"   )
     VarPlotN      =  Config.Default(section, "VarPlotN"     , None,  "int"        )
     VarCmap       =  Config.Default(section, "VarCmap"      , [FigCmap]           , asList = True)
     VardCmap      =  Config.Default(section, "VardCmap"     , [FigdCmap]          , asList = True)
+    VarrCmap      =  Config.Default(section, "VarrCmap"     , VardCmap           , asList = True)
     Total         =  Config.Default(section, "Total"        , False, "boolean" )
     TotalOnly     =  Config.Default(section, "TotalOnly"    , False, "boolean" )
     Stream        =  Config.Default(section, "Stream"                          )
@@ -103,7 +106,7 @@ for section in Config.sections():
     
     def lenNone(x): return(0 if x is None else len(x))
     
-    if (len(jobs) > 1 and (lenNone(VarStashCodes) > 1 or lenNone(VarLbelv) > 1)):
+    if len(jobs) > 1 and (lenNone(VarStashCodes) > 1 or lenNone(VarLbelv) > 1):
         opr = []
         for job, datD in zip(jobs, datDirs):
             datDirt = datD if Stream is None else datD + Stream + '/'
@@ -118,9 +121,17 @@ for section in Config.sections():
                                total = Total, totalOnly = TotalOnly,
                                scale = VarScaling,
                                change = Change, accumulate = Accumulate)
-
+            
+            if Ratio and (lenNone(VarStashCodes) == 2 or lenNone(VarLbelv) == 2):
+                levels = [VarLevels, VarLevels, VarrLevels]
+                cmap1  = VarCmap[0]  if type(VarCmap)  is list else  VarCmap
+                cmap2  = VarrCmap[0] if type(VarrCmap) is list else  VarrCmap
+                cmap   = [cmap1  , cmap1  , cmap2  ]
+            else:
+                levels = VarLevels
+                cmap   = VarCmap
             opri.plot_cubes(FigNamei, FigTitle + ' ' + job, FigTS, FigTSMean, FigTSUnits,
-                            running_mean, VarLevels, VarCmap)
+                            running_mean, levels, cmap)
             opr.append(opri)
         
         opr[0].diff(opr[1], DiffN, jobs)
@@ -134,11 +145,11 @@ for section in Config.sections():
             for _ in range(2):
                 cmaps.insert(0, VarCmap[0])
                 levels.insert(0, VarLevels)
-
+        if len(levels) == 1 and type(levels[0]) is list: levels = levels[0]
         ## needs new Levels and Cmap for diff.
         FigName = fdir + '/' + 'diff_' + jobs[1] + '-' + jobs[0] + FigName
-        opr[0].plot_cubes(FigName, FigTitle, FigTS, FigTSMean, FigTSUnits,
-                       running_mean, levels, cmaps)
+        
+        opr[0].plot_cubes(FigName, FigTitle, FigTS, FigTSMean, FigTSUnits, running_mean, levels, cmaps)
       
          
     else:
