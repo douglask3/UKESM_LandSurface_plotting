@@ -52,18 +52,24 @@ class load_stash(object):
             pass
         
         stash_constraint = iris.AttributeConstraint(STASH = code)
-    
+        
         try:
             cube = iris.load_cube(files, stash_constraint)
             return cube
         except:    
-            warnings.warn('unable to open variable: ' + code)
-            pass 
+            try: 
+                cube = iris.load(files, stash_constraint)[0]
+                return cube
+            except:
+                warnings.warn('unable to open variable: ' + code)
+                pass 
 
     def stash_levels(self, lbelv):
         
         index = np.where(self.dat.coord('pseudo_level').points == lbelv)[0]
-        cube  = self.dat[index][0]
-
+        try:
+            cube  = self.dat[index][0]
+        except:
+            browser()
         return cube
      
