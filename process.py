@@ -62,7 +62,14 @@ for section in Config.sections():
     if (section == 'FileInfo' or section == 'MachineInfo'): continue
     
     FigName       =  Config.Default(section, "FigName"      , section          )
-    FigTitle      =  Config.Default(section, "FigTitle"     , section          )
+    FigLon        =  Config.Default(section, "FigLon"       , None, "float"    ) 
+    FigLat        =  Config.Default(section, "FigLat"       , None, "float"    ) 
+    
+    titleDefault  = section + '\n'
+    if FigLon is not None: titleDefault += '| Longitude: ' + str(FigLon) + ' |'
+    if FigLat is not None: titleDefault += '| Latitude: '  + str(FigLat) + ' |' 
+
+    FigTitle      =  Config.Default(section, "FigTitle"     , titleDefault     )
     FigUnits      =  Config.Default(section, "FigUnits"                        )
     FigCmap       =  Config.Default(section, "FigCmap"      , "brewer_Greys_09")
     FigdCmap      =  Config.Default(section, "FigdCmap"     , "brewer_Spectral_11")
@@ -71,10 +78,12 @@ for section in Config.sections():
     VarNames_default = jobs if (len(jobs) > 1 and len(VarStashCodes) == 1) else VarStashCodes
 	
     VarNames      =  Config.Default(section, "VarNames"     , VarNames_default    , asList = True)
+    plotNames     =  Config.Default(section, "plotNames"    , None                , asList = True)
     VarScaling    =  Config.Default(section, "VarScaling"   , 1.0  , "float"   )
     VarLbelv      =  Config.Default(section, "VarLbelv"     , None,  "int"     )
     VarLevels     =  Config.Default(section, "VarLevels"    , None,  "float"   )
     VardLevels    =  Config.Default(section, "VardLevels"   , None,  "float"   )
+    VarPlotN      =  Config.Default(section, "VarPlotN"     , None,  "int"        )
     VarCmap       =  Config.Default(section, "VarCmap"      , [FigCmap]           , asList = True)
     VardCmap      =  Config.Default(section, "VardCmap"     , [FigdCmap]          , asList = True)
     Total         =  Config.Default(section, "Total"        , False, "boolean" )
@@ -83,7 +92,9 @@ for section in Config.sections():
     FigTS         =  Config.Default(section, "FigTS"        , True , "boolean" )
     FigTSMean     =  Config.Default(section, "FigTSMean"    , True , "boolean" )
     FigTSUnits    =  Config.Default(section, "FigTSUnits")
-    Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 else False, "boolean")
+    Ratio         =  Config.Default(section, "FigRatio"     , False, "boolean" )
+    Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 and not Ratio else False, "boolean")
+    DiffN         =  Config.Default(section, "FigVarNDiff"  , None,  "int"     )
     FigChange     =  Config.Default(section, "FigChange"    , False, "boolean" )
     FigAccumulate =  Config.Default(section, "FigAccumulate", False, "boolean" )
     
@@ -98,23 +109,38 @@ for section in Config.sections():
             datDirt = datD if Stream is None else datD + Stream + '/'
             FigNamei = fdir + '/' +  job + '-' + FigName
             files = sort(listdir_path(datDirt))
-            
-            opri = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
-                               diff = Diff, total = Total, totalOnly = TotalOnly,
+
+            print section
+
+            opri = open_plot_return(files, VarStashCodes, VarLbelv, VarPlotN, VarNames, plotNames,
+                                    FigLon, FigLat, FigUnits,
+                               diff = Diff, ratio = Ratio,
+                               total = Total, totalOnly = TotalOnly,
                                scale = VarScaling,
                                change = Change, accumulate = Accumulate)
+
             opri.plot_cubes(FigNamei, FigTitle + ' ' + job, FigTS, FigTSMean, FigTSUnits,
                             running_mean, VarLevels, VarCmap)
             opr.append(opri)
         
-        opr[1].diff(opr[0])
-        
+        opr[0].diff(opr[1], DiffN, jobs)
+
+        cmaps = VardCmap[:]
+        levels = [VardLevels]
+
+        if DiffN is None:
+            FigTitle += ' differnce'
+        else:
+            for _ in range(2):
+                cmaps.insert(0, VarCmap[0])
+                levels.insert(0, VarLevels)
+
         ## needs new Levels and Cmap for diff.
         FigName = fdir + '/' + 'diff_' + jobs[1] + '-' + jobs[0] + FigName
-        opr[1].plot_cubes(FigName, FigTitle + ' differnce', FigTS, FigTSMean, FigTSUnits,
-                       running_mean, VardLevels, VardCmap)
-        
-        
+        opr[0].plot_cubes(FigName, FigTitle, FigTS, FigTSMean, FigTSUnits,
+                       running_mean, levels, cmaps)
+      
+         
     else:
         ## find files
         files = []
@@ -124,7 +150,9 @@ for section in Config.sections():
         
         FigName = fdir + '/' + FigName
         if len(jobs) > 1 and len(VarNames) == 1: VarNames = [VarNames[0] + '-' + i for i in jobs]
-        opr = open_plot_return(files, VarStashCodes, VarLbelv, VarNames, FigUnits,
+
+        opr = open_plot_return(files, VarStashCodes, VarLbelv, VarPlotN, VarNames, plotNames,
+                               FigLon, FigLat, FigUnits,
                                diff = Diff, total = Total, totalOnly = TotalOnly,
                                scale = VarScaling,
                                change = Change, accumulate = Accumulate)
@@ -132,6 +160,8 @@ for section in Config.sections():
         if len(jobs) == 2 and Diff:
             VarLevels = [VarLevels, VarLevels, VardLevels]
             if len(VarCmap) == 1: VarCmap   = [VarCmap[0]  , VarCmap[0]  , VardCmap[0]  ]
+
+    
         opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean,
                        running_mean = running_mean,
                        levels = VarLevels, cmap = VarCmap)

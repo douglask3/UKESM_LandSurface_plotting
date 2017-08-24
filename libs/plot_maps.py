@@ -12,21 +12,25 @@ from pdb import set_trace as browser
 from numpy import inf
 
 def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
-    if (lims is None):
+    def select_lims(prec, nlims):
         nlims0 = nlims
         for p in range(0,100 - nlims0):
             nlims = nlims0 + p
-        
-            lims = np.percentile(dat.data[~np.isnan(dat.data)], range(0, 100, 100/nlims))
-            #lims = lims[lims != -inf]
+            lims  = np.percentile(dat.data[~np.isnan(dat.data)], range(0, 100, 100/nlims))
+            
             if (lims[0]==-inf): lims.pop(0)
             
-            lims = [to_precision(i, 2) for i in lims]
+            lims = [to_precision(i, prec) for i in lims]
             lims = np.unique(lims)
             if (len(lims) >= nlims0): break
+        return lims
+    if (lims is None):
+        for prec in range(1,5):
+            lims = select_lims(prec, nlims)
+            if len(lims) > 3: break
+
         new_lims = True
     else:
-        nlims = len(lims) + 1
         new_lims = False
     if (lims[0] < 0.0):
         if (new_lims): 
@@ -35,6 +39,7 @@ def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
                 # if more gt zero
                 lims = [i for i in lims if i < 0.0]
                 lims = np.concatenate((lims,[-i for i in lims[::-1]]))  
+
             else:
                 # if more lt zero
                 lims = [i for i in lims if i > 0.0]
@@ -52,11 +57,10 @@ def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
 def plot_cube(cube, N, M, n, levels = None, cmap = 'brewer_Greys_09'):
     
     plt.subplot(N, M, n, projection=ccrs.Robinson())
-    print cube.name()
-    try:
-        cube = cube.collapsed('time', iris.analysis.MEAN)
-    except:
-        cube = cube.collapsed('forecast_reference_time', iris.analysis.MEAN)
+    
+    if cube.ndim == 3:
+        cube[0].data = np.nanmean(cube.data, 0)
+        cube = cube[0]
     
     cmap = plt.get_cmap(cmap)   
     levels, extend = hist_limits(cube, levels, 7)
@@ -78,12 +82,15 @@ def plot_cubes_map(cubes, N, M, levels, cmap, *args):
     
     nplots = len(cubes) + 1
     if (type(cmap) is list and len(cmap) == 1): cmap = cmap[0]
-    for i in range(0, nplots - 1):    
-        cmapi   = cmap   if type(cmap)      is str   else cmap[i]
-        try: 
-            levelsi = levels if type(levels[0]) is float else levels[i]
-        except:
-            levelsi = None
+    for i in range(0, nplots - 1):  
+        if levels is not None:
+            if type(levels) is list and len(levels) == 1 and levels[0] is None:
+                levelsi = None
+            else:
+                levelsi = levels[i] if type(levels[0]) is list or levels[0] is  None else levels            
+        else:
+            levelsi = None        
+        cmapi = cmap if type(cmap) is str else cmap[i]   
         
         plot_cube(cubes[i], N, M, i + 1, levelsi, cmapi   , *args)
 

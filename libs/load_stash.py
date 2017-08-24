@@ -12,10 +12,8 @@ class load_stash(object):
         self.dat = self.stash_code(files, code)
         
         if (self.dat is not None):
-
             if (lbelvs is not None):
                 self.dat = [self.stash_levels(lbelv) for lbelv in lbelvs]
-            
             #stick in function            
             if (isinstance(self.dat, list)):
                 for i in range(0, len(self.dat)):
@@ -50,12 +48,20 @@ class load_stash(object):
             elif (len(code) == 7): code = 'm' + code[0:2] + 's' + code[2:4] + 'i' + code[4:]
         except:
             pass
+
         
         stash_constraint = iris.AttributeConstraint(STASH = code)
-        
+
         try:
-            cube = iris.load_cube(files, stash_constraint)
-            return cube
+            cube = iris.load(files, stash_constraint)
+            if len(cube) > 1:
+                warnings.warn('more then one instance of ' + 
+                              code + ' available. Choosing one with shortest time dimension')
+                nt = [i.coord('time').shape[0] for i in cube]
+                nt = np.where(nt == np.min(nt))[0][0]
+            else:
+                nt = 0
+            return cube[nt]
         except:    
             try: 
                 cube = iris.load(files, stash_constraint)[0]
@@ -65,7 +71,7 @@ class load_stash(object):
                 pass 
 
     def stash_levels(self, lbelv):
-        
+        print(lbelv)
         index = np.where(self.dat.coord('pseudo_level').points == lbelv)[0]
         try:
             cube  = self.dat[index][0]

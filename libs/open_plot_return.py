@@ -17,17 +17,33 @@ from   pdb   import set_trace as browser
 #############################################################################
 
 class open_plot_return(object):
-    def __init__(self, files = None, codes = None, lbelv = None, names = None,
-                 units  = None, dat = None, diff = False, total = False, **kw):
-        if (dat is None):
-            self.dat = self.load_group(files, codes, lbelv, names, diff,
-                                       total, units = units, **kw)
-        else:
-            self.dat = dat
+    def __init__(self, files = None, codes = None, lbelv = None, VarPlotN = None, names = None,
+                 plotNames = None, lon = None, lat = None,
+                 units  = None, dat = None, diff = False, ratio = False, total = False,  **kw):
         
-    
-    def load_group_cubes(self, files, codes, names, lbelvs, 
-                   change = False, accumulate = False, **kw):
+        if (dat is None):
+            dat      = self.load_group(files, codes, lbelv, VarPlotN, names,
+                                       plotNames, diff, ratio, total, units = units, **kw)
+        
+        def coordRange2List(c, r):
+            if c is not None:
+                if not isinstance(c, list) or len(c) == 1: c = [c, c]
+            return c
+                
+        self.lon = coordRange2List(lon, [-180, 180])
+        self.lat = coordRange2List(lat, [-90 ,  90])
+        
+        def lonRange(cell): return self.lon[0] <= cell <= self.lon[1]
+        def latRange(cell): return self.lat[0] <= cell <= self.lat[1]
+
+        if self.lon is not None: dat = [cube.extract(iris.Constraint(longitude = lonRange)) for cube in dat]
+        if self.lat is not None: dat = [cube.extract(iris.Constraint(latitude  = latRange)) for cube in dat]
+        
+        self.dat = dat
+
+   
+    def load_group_cubes(self, files, codes, names, lbelvs, VarPlotN, plotNames,
+                         change = False, accumulate = False, **kw):
         
         if len(files) == 1 and isinstance(files, list): files = files[0] 
 
@@ -35,19 +51,36 @@ class open_plot_return(object):
         if len(accumulate) == 1 and len(codes) > 1 : accumulate = accumulate * len(codes)
         
         if isinstance(files[0], str):
+ 
             if len(codes) == 1 and len(names) > 1 and lbelvs is not None: names = [names]
             dat = [load_stash(files, code, lbelvs, name, change = ch, accumulate = acc, **kw).dat for code, name, ch, acc in zip(codes, names, change, accumulate)]
             if len(codes) == 1 and lbelvs is not None: dat = dat[0]
         else:           
             dat = [load_stash(file, codes[0], lbelvs, name, change = change[0], accumulate = accumulate[0], **kw).dat for file, name in zip(files, names)]    
+
+        if VarPlotN is not None:     
+            nplts = max(VarPlotN)
+            datOut = dat[0].copy()
+            datOut.data[:] = 0.0
+            datOut = [datOut.copy() for i in range(nplts)] 
+            for pn, cube in zip(VarPlotN, dat):
+                try: datOut[pn-1].data += cube.data
+                except: pass
+            
+            if plotNames is None: plotNames = [str(i) for i in range(1, nplts + 1)]
+            for cube, pname in zip(datOut, plotNames): cube.long_name = cube.var_name = pname
+            dat = datOut
+
         dat = [i for i in dat if i is not None]
+        
         return(dat)
 
-    def load_group(self, files, codes, lbelvs, names,
-                   diff = False, total = False, totalOnly = False, 
+
+    def load_group(self, files, codes, lbelvs, VarPlotN, names, plotNames,
+                   diff = False, ratio = False, total = False, totalOnly = False, 
                    scale = None, **kw):
         
-        dat = self.load_group_cubes(files, codes, names, lbelvs, **kw)
+        dat = self.load_group_cubes(files, codes, names, lbelvs, VarPlotN, plotNames, **kw)
         
         for i in range(0, len(dat)):
             if (dat[i].coords()[0].long_name == 'pseudo_level'):
@@ -67,6 +100,7 @@ class open_plot_return(object):
             tot = dat[0].copy()
             for i in dat[1:]: tot.data += i.data
 
+
             tot.var_name  = 'total'
             tot.long_name = 'total' 
             if totalOnly:
@@ -74,19 +108,19 @@ class open_plot_return(object):
             else:  
                 dat.append(tot)
 
-        elif diff and len(dat) == 2:       
-            nt = min(dat[0].shape[0], dat[1].shape[0])
-
-            dat[0] = dat[0][0:nt]
-            dat[1] = dat[1][0:nt]
-            
-            diff = dat[1].copy() 
-            diff = diff - dat[0]
-
-            diff.var_name  = 'difference'
-            diff.long_name = 'difference'
-            dat.append(diff) 
-
+        elif (diff and len(dat) == 2):
+            try:                       
+                dat = self.diff_cube(dat[0], dat[1])
+                dat[2].var_name = dat[2].long_name = 'diff'
+            except:
+                warnings.warn('unable to calculate difference between cubes')
+                browser()
+        
+        if ratio:
+            rat = iris.analysis.maths.divide(dat[0], dat[1])
+            rat.var_name = rat.long_name = 'ratio'
+            dat.append(rat)
+        
         return dat
     
     def plot_setup(self, TS):
@@ -103,7 +137,7 @@ class open_plot_return(object):
         
         if (TS): N = N + 1
         if (N > 1 and M > 1):
-            plt.figure(figsize = (24 + max(0, (N - 3)/2),  12 + max(0, (M - 3)/2)))
+            plt.figure(figsize = (24 + max(0, (N - 3.0)/1.5),  12 + max(0, (M - 3.0)/2.0)))
         else:
             plt.figure(figsize = (12,  12))
         return N, M
@@ -112,7 +146,8 @@ class open_plot_return(object):
                    TS = True, TSMean = False, TSUnits = None, running_mean= False,
                    levels = None, cmap = 'brewer_Greys_09', *args):    
         N, M = self.plot_setup(TS)
-        
+        print figName
+
         plot_cubes_map(self.dat, N, M, levels, cmap = cmap, *args)        
     
         if (TS):
@@ -132,21 +167,42 @@ class open_plot_return(object):
             browser()
         return self.dat
     
-    def diff(self, opr):
+    def diff(self, opr, cubeN = None, names = None):
         
-        def diff_cube(cs1, cs2):
+        if cubeN is not None:
+            cs1 = self.dat[cubeN-1]
+            cs2 =  opr.dat[cubeN-1]
+            self.dat = self.diff_cube(cs1, cs2)
+            
+            if names is not None:
+                names.append(names[0] + '-' + names[1])
+                for i,j in zip(self.dat, names): i.var_name = i.long_name = j
+        else:
+            opr = opr.dat
+            ncubes = min(len(self.dat), len(opr))
+
+            cs1 = self.dat[0]
+            cs2 = opr[0]
+        
+            self.dat = [self.diff_cube(self.dat[i], opr[i])[2] for i in range(0, ncubes)] 
+
+
+    def diff_cube(self, cs1, cs2):
             if (cs1.ndim == 3 and cs2.ndim == 3):
-                nt = min(cs1.shape[0], cs2.shape[1])
-                cs1 = cs1[0:nt]
-                cs2 = cs2[0:nt]
-            cs1.data = cs1.data - cs2.data
-            return cs1
+                
 
-        opr = opr.dat
-        ncubes = min(len(self.dat), len(opr))
+                t1 = cs1.coord('time').points
+                t2 = cs2.coord('time').points
+                tmin = np.max([t1.min(), t2.min()])
+                tmax = np.min([t1.max(), t2.max()])
 
-        cs1 = self.dat[0]
-        cs2 = opr[0]
-        
-        self.dat = [diff_cube(self.dat[i], opr[i])for i in range(0, ncubes)] 
+                t = np.unique(np.append(t1, t2))
+                t = t[t < tmax]
+                t = t[t > tmin]
 
+                cs1 = cs1.interpolate([('time', t)], iris.analysis.Linear())
+                cs2 = cs2.interpolate([('time', t)], iris.analysis.Linear())
+
+            cs3 = cs1.copy()
+            cs3.data = cs1.data - cs2.data
+            return [cs1, cs2, cs3]
