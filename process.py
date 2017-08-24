@@ -88,7 +88,7 @@ for section in Config.sections():
     VarPlotN      =  Config.Default(section, "VarPlotN"     , None,  "int"        )
     VarCmap       =  Config.Default(section, "VarCmap"      , [FigCmap]           , asList = True)
     VardCmap      =  Config.Default(section, "VardCmap"     , [FigdCmap]          , asList = True)
-    VarrCmap      =  Config.Default(section, "VarrCmap"     , VardCmap           , asList = True)
+    VarrCmap      =  Config.Default(section, "VarrCmap"     , [FigrCmap]           , asList = True)
     Total         =  Config.Default(section, "Total"        , False, "boolean" )
     TotalOnly     =  Config.Default(section, "TotalOnly"    , False, "boolean" )
     Stream        =  Config.Default(section, "Stream"                          )
