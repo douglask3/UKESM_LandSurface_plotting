@@ -45,12 +45,19 @@ def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
                 lims = [i for i in lims if i > 0.0]
                 lims = np.concatenate(([-i for i in lims[::-1]], lims))     
         extend = 'both'
+        
     else:
         extend = 'max'
 
     if len(lims) == 1: 
         lims = [-0.0001, -0.000001, 0.000001, 0.0001] if lims == 0.0 else [lims[0] * (1 + i) for i in [-0.1, -0.01, 0.01, 0.1]]
         extend = 'neither'
+
+    if np.log10(lims[0]/lims[1]) > 3: lims[0] = 1000 * lims[1]
+    if np.log10(lims[-1] / lims[-2]) > 3: lims[-1] = 1000 * lims[-2]
+    if len(lims) < 4:
+        lims = np.interp(np.arange(0, len(lims), len(lims)/6.0), range(0, len(lims)), lims)
+    
     return (lims, extend)
 
 
