@@ -73,8 +73,10 @@ def plot_cube(cube, N, M, n, levels = None, cmap = 'brewer_Greys_09'):
     try:
         qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm, extend = extend)
     except:
-        qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm)
-    
+        try:
+            qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm)
+        except:
+            qplt.pcolormesh(cube, cmap = cmap, norm = norm)
     plt.gca().coastlines()
     
 
