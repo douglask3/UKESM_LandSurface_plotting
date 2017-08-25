@@ -182,9 +182,10 @@ for section in Config.sections():
     if fdirNew != fdir0:
         fdir0 = fdirNew
         fdirNew = fdirSub + '/' + fdirNew
+        if fdir[-1]=='/': fdir = fdir[:-1]
         os.system('convert $(ls -dr figs/' + fdir + '/*) figs/' + fdir + '-' + fdirSub + '.pdf')
         fdir = fdirNew
         os.system('rm -r figs/' + fdir + '/*')
         
-
+if fdir[-1]=='/': fdir = fdir[:-1]
 os.system('convert $(ls -dr figs/' + fdir + '/*) figs/' + fdir + '-' + fdirSub + '.pdf')
