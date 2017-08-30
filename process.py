@@ -98,6 +98,7 @@ for section in Config.sections():
     Ratio         =  Config.Default(section, "FigRatio"     , False, "boolean" )
     Diff          =  Config.Default(section, "FigDiff"      , True if len(jobs) == 2 and not Ratio else False, "boolean")
     DiffN         =  Config.Default(section, "FigVarNDiff"  , None,  "int"     )
+    FigDiffOnly   =  Config.Default(section, "FigDiffOnly"  , False, "boolean" )
     FigChange     =  Config.Default(section, "FigChange"    , False, "boolean" )
     FigAccumulate =  Config.Default(section, "FigAccumulate", False, "boolean" )
     
@@ -130,8 +131,9 @@ for section in Config.sections():
             else:
                 levels = VarLevels
                 cmap   = VarCmap
-            opri.plot_cubes(FigNamei, FigTitle + ' ' + job, FigTS, FigTSMean, FigTSUnits,
-                            running_mean, levels, cmap)
+            if not FigDiffOnly:
+                opri.plot_cubes(FigNamei, FigTitle + ' ' + job, FigTS, FigTSMean, FigTSUnits,
+                                running_mean, levels, cmap)
             opr.append(opri)
         
         opr[0].diff(opr[1], DiffN, jobs)
