@@ -1,6 +1,6 @@
 data/*
 figs/*
-
+temp/*
 
 *.swp
 *.pyc
