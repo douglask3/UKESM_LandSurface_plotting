@@ -1,6 +1,6 @@
 data/*
 figs/*
-
+docs/*
 
 *.swp
 *.pyc
