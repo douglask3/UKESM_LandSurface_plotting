@@ -166,6 +166,8 @@ class open_plot_return(object):
         except:
             browser()
         return self.dat
+        
+        plt.close()
     
     def diff(self, opr, cubeN = None, names = None):
         
