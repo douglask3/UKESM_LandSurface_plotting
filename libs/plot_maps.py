@@ -38,14 +38,26 @@ def hist_limits(dat, lims = None, nlims = 5, symmetrical = True):
             if (sum(i < 0.0 for i in lims) > sum(i > 0.0 for i  in lims)):
                 # if more gt zero
                 lims = [i for i in lims if i < 0.0]
-                lims = np.concatenate((lims,[-i for i in lims[::-1]])) 
+                lims = np.concatenate((lims,[-i for i in lims[::-1]]))  
+
             else:
                 # if more lt zero
                 lims = [i for i in lims if i > 0.0]
                 lims = np.concatenate(([-i for i in lims[::-1]], lims))     
         extend = 'both'
+        
     else:
         extend = 'max'
+
+    if len(lims) == 1: 
+        lims = [-0.0001, -0.000001, 0.000001, 0.0001] if lims == 0.0 else [lims[0] * (1 + i) for i in [-0.1, -0.01, 0.01, 0.1]]
+        extend = 'neither'
+
+    if np.log10(lims[0]/lims[1]) > 3: lims[0] = 1000 * lims[1]
+    if np.log10(lims[-1] / lims[-2]) > 3: lims[-1] = 1000 * lims[-2]
+    if len(lims) < 4:
+        lims = np.interp(np.arange(0, len(lims), len(lims)/6.0), range(0, len(lims)), lims)
+    
     return (lims, extend)
 
 
@@ -65,7 +77,13 @@ def plot_cube(cube, N, M, n, levels = None, cmap = 'brewer_Greys_09'):
     else:
         norm = BoundaryNorm(levels, ncolors=cmap.N)
     
-    qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm, extend = extend)
+    try:
+        qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm, extend = extend)
+    except:
+        try:
+            qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm)
+        except:
+            qplt.pcolormesh(cube, cmap = cmap, norm = norm)
     plt.gca().coastlines()
     
 
@@ -73,7 +91,7 @@ def plot_cubes_map(cubes, N, M, levels, cmap, *args):
     
     nplots = len(cubes) + 1
     if (type(cmap) is list and len(cmap) == 1): cmap = cmap[0]
-    for i in range(0, nplots - 1):
+    for i in range(0, nplots - 1):  
         if levels is not None:
             if type(levels) is list and len(levels) == 1 and levels[0] is None:
                 levelsi = None
@@ -81,7 +99,8 @@ def plot_cubes_map(cubes, N, M, levels, cmap, *args):
                 levelsi = levels[i] if type(levels[0]) is list or levels[0] is  None else levels            
         else:
             levelsi = None        
-        cmapi = cmap if type(cmap) is str else cmap[i]    
+        cmapi = cmap if type(cmap) is str else cmap[i]   
+        
         plot_cube(cubes[i], N, M, i + 1, levelsi, cmapi   , *args)
 
     
