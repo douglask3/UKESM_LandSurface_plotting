@@ -9,14 +9,17 @@ def makeDir(filename):
             if exc.errno != errno.EEXIST:
                 raise
 
-def grab_data(job, stream, codes, dir = None):
+def grab_data(job, stream, codes, dir = None, startYr = None, endYr = None):
     #remove m01, s and i from codes    
     codes = [i.replace('m01', '') for i in codes]   
     codes = [i.replace(  'i', '') for i in codes]   
     codes = [i.replace(  's', '') for i in codes]
     
    
-    filter = 'begin \n\t stash = '
+    filter = 'begin \n'
+    if startYr is not None and endYr is not None:
+        filter += 'year = [' + str(startYr) + '..' + str(endYr) + ']\n'
+    filter += '\t stash = '
     if len(codes) != 1: filter += '('    
     for i in codes: filter += i + ', '
     filter = filter[:-2]

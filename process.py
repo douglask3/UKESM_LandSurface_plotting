@@ -23,6 +23,8 @@ jdir         = Config.Default("FileInfo", "subDir"      )
 fdirSub      = Config.Default("FileInfo", "figSubDir"   )
 stream       = Config.Default("FileInfo", "Stream"      )
 grab         = Config.Default("FileInfo", "grab"        , True,  "boolean")
+startYr      = Config.Default("FileInfo", "StartYr"     , None,  "int")
+endYr        = Config.Default("FileInfo", "EndYr"       , None,  "int")
 running_mean = Config.Default("FileInfo", "running_mean", False, 'boolean')
 namelistDoc  = Config.Default("FileInfo", "namelistDoc" , "")
 namelists    = Config.Default("FileInfo", "namelist"    , [""]    , asList = True)
@@ -54,7 +56,7 @@ for job in jobs:
         newStash = Config.Default(i, "VarStashCodes", asList = True)
         if (newStash is not None): stash.extend(newStash)
     
-    if (grab): grab_data(job, stream, stash, datDiri)    
+    if (grab): grab_data(job, stream, stash, datDiri, startYr, endYr)    
 
 
 	
