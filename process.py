@@ -73,6 +73,7 @@ for section in Config.sections():
 
     FigTitle      =  Config.Default(section, "FigTitle"     , titleDefault     )
     FigUnits      =  Config.Default(section, "FigUnits"                        )
+    FigMonths     =  Config.Default(section, "FigMonths"    , None             )
     FigCmap       =  Config.Default(section, "FigCmap"      , "brewer_Greys_09")
     FigdCmap      =  Config.Default(section, "FigdCmap"     , "brewer_Spectral_11")
     FigrCmap      =  Config.Default(section, "FigrCmap"     , "brewer_Spectral_11")
@@ -118,12 +119,14 @@ for section in Config.sections():
 
             print section
 
-            opri = open_plot_return(files, VarStashCodes, VarLbelv, VarPlotN, VarNames, plotNames,
+            opri = open_plot_return(files, VarStashCodes, VarLbelv, 
+                                    VarPlotN, VarNames, plotNames,
                                     FigLon, FigLat, FigUnits,
-                               diff = Diff, ratio = Ratio,
-                               total = Total, totalOnly = TotalOnly,
-                               scale = VarScaling,
-                               change = Change, accumulate = Accumulate)
+                                    diff = Diff, ratio = Ratio,
+                                    total = Total, totalOnly = TotalOnly,
+                                    scale = VarScaling,
+                                    months = FigMonths,
+                                    change = Change, accumulate = Accumulate)
             
             if Ratio and (lenNone(VarStashCodes) == 2 or lenNone(VarLbelv) == 2):
                 levels = [VarLevels, VarLevels, VarrLevels]
@@ -170,6 +173,7 @@ for section in Config.sections():
                                FigLon, FigLat, FigUnits,
                                diff = Diff, total = Total, totalOnly = TotalOnly,
                                scale = VarScaling,
+                               months = FigMonths,
                                change = Change, accumulate = Accumulate)
         
         if len(jobs) == 2 and Diff:

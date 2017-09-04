@@ -1,4 +1,5 @@
 import iris
+import iris.coord_categorisation
 import sys
 import warnings
 import numpy as np
@@ -7,11 +8,21 @@ from pdb import set_trace as browser
 
 class load_stash(object):
     def __init__(self, files, code, lbelvs, name, units = None,
-                 change = False, accumulate = False):
+                 change = False, accumulate = False, months = None):
         
         self.dat = self.stash_code(files, code)
         
-        if (self.dat is not None):
+        if self.dat is not None:
+            if months is not None:
+                iris.coord_categorisation.add_month(self.dat, 'time')
+                iris.coord_categorisation.add_year(self.dat, 'time')
+                if months == 'winter':
+                    tConstraint = iris.Constraint(month=lambda cell: cell.point=='Dec' or cell.point == 'Jan' or cell.point == 'Feb')
+                self.dat = self.dat.extract(tConstraint)
+                self.dat = self.dat.aggregated_by('year', iris.analysis.MEAN)
+                self.dat.remove_coord('year')
+                self.dat.remove_coord('month')
+
             if (lbelvs is not None):
                 self.dat = [self.stash_levels(lbelv) for lbelv in lbelvs]
             #stick in function            
