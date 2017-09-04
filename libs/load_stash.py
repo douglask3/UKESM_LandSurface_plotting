@@ -26,15 +26,19 @@ class load_stash(object):
         self.dat.remove_coord('year')
         self.dat.remove_coord('month')
 
+    def convert2Climatology(self):
+        iris.coord_categorisation.add_month(self.dat, 'time')
+        self.dat = self.dat.aggregated_by('month', iris.analysis.MEAN)
+        self.dat.remove_coord('month')
 
     def __init__(self, files, code, lbelvs, name, units = None,
-                 change = False, accumulate = False, months = None):
+                 change = False, accumulate = False, months = None, climatology = False):
         
         self.dat = self.stash_code(files, code)
         
         if self.dat is not None:
             if months is not None: self.extractMonths(months)
-               
+            elif climatology: self.convert2Climatology()
 
             if (lbelvs is not None):
                 self.dat = [self.stash_levels(lbelv) for lbelv in lbelvs]
