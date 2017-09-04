@@ -7,21 +7,34 @@ from pdb import set_trace as browser
 
 
 class load_stash(object):
+
+    def extractMonths(self, months):
+        iris.coord_categorisation.add_month(self.dat, 'time')
+        iris.coord_categorisation.add_year(self.dat, 'time')
+
+        if months == 'winter':
+            tConstraint = iris.Constraint(month=lambda cell: cell.point=='Dec' or cell.point == 'Jan' or cell.point == 'Feb')
+        elif months == 'spring':
+            tConstraint = iris.Constraint(month=lambda cell: cell.point=='Mar' or cell.point == 'Apr' or cell.point == 'May')       
+        elif months == 'summmer':
+            tConstraint = iris.Constraint(month=lambda cell: cell.point=='Jun' or cell.point == 'Jul' or cell.point == 'Aug')         
+        elif months == 'autumn':
+            tConstraint = iris.Constraint(month=lambda cell: cell.point=='Set' or cell.point == 'Oct' or cell.point == 'Nov')    
+
+        self.dat = self.dat.extract(tConstraint)
+        self.dat = self.dat.aggregated_by('year', iris.analysis.MEAN)
+        self.dat.remove_coord('year')
+        self.dat.remove_coord('month')
+
+
     def __init__(self, files, code, lbelvs, name, units = None,
                  change = False, accumulate = False, months = None):
         
         self.dat = self.stash_code(files, code)
         
         if self.dat is not None:
-            if months is not None:
-                iris.coord_categorisation.add_month(self.dat, 'time')
-                iris.coord_categorisation.add_year(self.dat, 'time')
-                if months == 'winter':
-                    tConstraint = iris.Constraint(month=lambda cell: cell.point=='Dec' or cell.point == 'Jan' or cell.point == 'Feb')
-                self.dat = self.dat.extract(tConstraint)
-                self.dat = self.dat.aggregated_by('year', iris.analysis.MEAN)
-                self.dat.remove_coord('year')
-                self.dat.remove_coord('month')
+            if months is not None: self.extractMonths(months)
+               
 
             if (lbelvs is not None):
                 self.dat = [self.stash_levels(lbelv) for lbelv in lbelvs]
