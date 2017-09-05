@@ -54,7 +54,10 @@ class plot_cubes_map(object):
             cube[0].data = np.nanmean(cube.data, 0)
             cube = cube[0]
     
-        cmap = plt.get_cmap(cmap)   
+        try:
+            cmap = plt.get_cmap(cmap)   
+        except:
+            cmap = plt.get_cmap(cmap[0])
         levels, extend = self.hist_limits(cube, levels, 7)
     
         if extend =='max': 
