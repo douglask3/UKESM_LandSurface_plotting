@@ -144,11 +144,11 @@ class open_plot_return(object):
 
     def plot_cubes(self, figName, title,
                    TS = True, TSMean = False, TSUnits = None, running_mean= False,
-                   levels = None, cmap = 'brewer_Greys_09', *args):    
+                   levels = None, cmap = 'brewer_Greys_09', *args, **kw):    
         N, M = self.plot_setup(TS)
         print figName
 
-        plot_cubes_map(self.dat, N, M, levels, cmap = cmap, *args)        
+        plot_cubes_map(self.dat, N, M, levels, cmap = cmap, *args, **kw)        
     
         if (TS):
             plt.subplot(N, 1, N)

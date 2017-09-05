@@ -25,6 +25,7 @@ stream       = Config.Default("FileInfo", "Stream"      )
 grab         = Config.Default("FileInfo", "grab"        , True,  "boolean")
 startYr      = Config.Default("FileInfo", "StartYr"     , None,  "int")
 endYr        = Config.Default("FileInfo", "EndYr"       , None,  "int")
+MapEndYrsN   = Config.Default("FileInfo", "MapEndYrsN"  , None,  "int")
 running_mean = Config.Default("FileInfo", "running_mean", False, 'boolean')
 namelistDoc  = Config.Default("FileInfo", "namelistDoc" , "")
 namelists    = Config.Default("FileInfo", "namelist"    , [""]    , asList = True)
@@ -139,7 +140,7 @@ for section in Config.sections():
                 cmap   = VarCmap
             if not FigDiffOnly:
                 opri.plot_cubes(FigNamei, FigTitle + ' ' + job, FigTS, FigTSMean, FigTSUnits,
-                                running_mean, levels, cmap)
+                                running_mean, levels, cmap, MapEndYrsN = MapEndYrsN)
             opr.append(opri)
         
         opr[0].diff(opr[1], DiffN, jobs)
@@ -157,7 +158,9 @@ for section in Config.sections():
         ## needs new Levels and Cmap for diff.
         FigName = fdir + '/' + 'diff_' + jobs[1] + '-' + jobs[0] + FigName
         
-        opr[0].plot_cubes(FigName, FigTitle, FigTS, FigTSMean, FigTSUnits, running_mean, levels, cmaps)
+        opr[0].plot_cubes(FigName, FigTitle, FigTS, FigTSMean, FigTSUnits,
+                          running_mean, levels, cmaps, MapEndYrsN = MapEndYrsN)
+
       
          
     else:
@@ -184,7 +187,7 @@ for section in Config.sections():
     
         opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean,
                        running_mean = running_mean,
-                       levels = VarLevels, cmap = VarCmap)
+                       levels = VarLevels, cmap = VarCmap, MapEndYrsN = MapEndYrsN)
     
     fdirNew         = Config.Default(section, "figsDir"     , fdir0)
 
