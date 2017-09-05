@@ -8,29 +8,6 @@ from pdb import set_trace as browser
 
 class load_stash(object):
 
-    def extractMonths(self, months):
-        iris.coord_categorisation.add_month(self.dat, 'time')
-        iris.coord_categorisation.add_year(self.dat, 'time')
-
-        if months == 'winter':
-            tConstraint = iris.Constraint(month=lambda cell: cell.point=='Dec' or cell.point == 'Jan' or cell.point == 'Feb')
-        elif months == 'spring':
-            tConstraint = iris.Constraint(month=lambda cell: cell.point=='Mar' or cell.point == 'Apr' or cell.point == 'May')       
-        elif months == 'summmer':
-            tConstraint = iris.Constraint(month=lambda cell: cell.point=='Jun' or cell.point == 'Jul' or cell.point == 'Aug')         
-        elif months == 'autumn':
-            tConstraint = iris.Constraint(month=lambda cell: cell.point=='Set' or cell.point == 'Oct' or cell.point == 'Nov')    
-
-        self.dat = self.dat.extract(tConstraint)
-        self.dat = self.dat.aggregated_by('year', iris.analysis.MEAN)
-        self.dat.remove_coord('year')
-        self.dat.remove_coord('month')
-
-    def convert2Climatology(self):
-        iris.coord_categorisation.add_month(self.dat, 'time')
-        self.dat = self.dat.aggregated_by('month', iris.analysis.MEAN)
-        self.dat.remove_coord('month')
-
     def __init__(self, files, code, lbelvs, name, units = None,
                  change = False, accumulate = False, months = None, climatology = False):
         
@@ -106,4 +83,29 @@ class load_stash(object):
         except:
             browser()
         return cube
+
+
+
+    def extractMonths(self, months):
+        iris.coord_categorisation.add_month(self.dat, 'time')
+        iris.coord_categorisation.add_year(self.dat, 'time')
+
+        if months == 'winter':
+            tConstraint = iris.Constraint(month=lambda cell: cell.point=='Dec' or cell.point == 'Jan' or cell.point == 'Feb')
+        elif months == 'spring':
+            tConstraint = iris.Constraint(month=lambda cell: cell.point=='Mar' or cell.point == 'Apr' or cell.point == 'May')       
+        elif months == 'summmer':
+            tConstraint = iris.Constraint(month=lambda cell: cell.point=='Jun' or cell.point == 'Jul' or cell.point == 'Aug')         
+        elif months == 'autumn':
+            tConstraint = iris.Constraint(month=lambda cell: cell.point=='Set' or cell.point == 'Oct' or cell.point == 'Nov')    
+
+        self.dat = self.dat.extract(tConstraint)
+        self.dat = self.dat.aggregated_by('year', iris.analysis.MEAN)
+        self.dat.remove_coord('year')
+        self.dat.remove_coord('month')
+
+    def convert2Climatology(self):
+        iris.coord_categorisation.add_month(self.dat, 'time')
+        self.dat = self.dat.aggregated_by('month', iris.analysis.MEAN)
+        self.dat.remove_coord('month')
      
