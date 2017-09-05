@@ -35,7 +35,10 @@ class plot_cubes_map(object):
     def plot_cube(self, cube, N, M, n, levels = None, cmap = 'brewer_Greys_09', MapEndYrsN = None):
     
         if MapEndYrsN is not None:            
-            iris.coord_categorisation.add_year(cube, 'time')
+            try:
+                iris.coord_categorisation.add_year(cube, 'time')
+            except:
+                pass
             self.endYr = cube.coord('year').points.max()
             self.startYr = self.endYr - MapEndYrsN
             def dateRange1(cell): return self.startYr <= cell
