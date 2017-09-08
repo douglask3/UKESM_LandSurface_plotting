@@ -16,7 +16,7 @@ from numpy import inf
 class plot_cubes_map(object):
 
     def __init__(self, cubes, N, M, levels, cmap, *args, **kw):
-    
+        
         nplots = len(cubes) + 1
         if (type(cmap) is list and len(cmap) == 1): cmap = cmap[0]
         for i in range(0, nplots - 1):  
@@ -28,7 +28,7 @@ class plot_cubes_map(object):
             else:
                 levelsi = None        
             cmapi = cmap if type(cmap) is str else cmap[i]   
-        
+            
             self.plot_cube(cubes[i], N, M, i + 1, levelsi, cmapi, *args, **kw)
 
 
@@ -49,11 +49,12 @@ class plot_cubes_map(object):
             cube.var_name = cube.long_name = cube.var_name + '_' + str(self.startYr) + '-' + str(self.endYr)
 
         plt.subplot(N, M, n, projection=ccrs.Robinson())
-    
+        try: cube.collapsed('time', iris.analysis.MEAN)
+        except: pass
         if cube.ndim == 3:
             cube[0].data = np.nanmean(cube.data, 0)
             cube = cube[0]
-    
+        
         try:
             cmap = plt.get_cmap(cmap)   
         except:
