@@ -49,7 +49,8 @@ class plot_cubes_map(object):
             cube.var_name = cube.long_name = cube.var_name + '_' + str(self.startYr) + '-' + str(self.endYr)
 
         plt.subplot(N, M, n, projection=ccrs.Robinson())
-        try: cube.collapsed('time', iris.analysis.MEAN)
+        
+        try: cube = cube.collapsed('time', iris.analysis.MEAN)
         except: pass
         if cube.ndim == 3:
             cube[0].data = np.nanmean(cube.data, 0)
@@ -65,7 +66,7 @@ class plot_cubes_map(object):
             norm = BoundaryNorm(levels, ncolors=cmap.N - 1)
         else:
             norm = BoundaryNorm(levels, ncolors=cmap.N)
-    
+        
         try:
             qplt.contourf(cube, levels = levels, cmap = cmap, norm = norm, extend = extend)
         except:
