@@ -169,6 +169,7 @@ class open_plot_return(object):
         makeDir(figName)
         try:
             plt.savefig(figName, bbox_inches='tight')
+            plt.close()
         except:
             browser()
         return self.dat
