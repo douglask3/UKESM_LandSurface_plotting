@@ -38,7 +38,7 @@ class open_plot_return(object):
 
         if self.lon is not None: dat = [cube.extract(iris.Constraint(longitude = lonRange)) for cube in dat]
         if self.lat is not None: dat = [cube.extract(iris.Constraint(latitude  = latRange)) for cube in dat]
-        
+
         self.dat = dat
 
    
@@ -81,22 +81,28 @@ class open_plot_return(object):
                    scale = None, **kw):
         
         dat = self.load_group_cubes(files, codes, names, lbelvs, VarPlotN, plotNames, **kw)
-        
+       
         for i in range(0, len(dat)):
             if (dat[i].coords()[0].long_name == 'pseudo_level'):
                 print('warning: ' + names[i] + ' has pseudo_levels, which will be meaned')
                 dat[i] = dat[i].collapsed('pseudo_level', iris.analysis.MEAN)             
         
-        if (scale is not None):
+        if scale is not None:
             for i in range(0, len(dat)): 
                 sc = scale[i] if type(scale) is list else scale
                 dat[i].data = dat[i].data * sc   
         
-        if total:
-            times = dat[0].coord('time').points
-            for i in dat[1:]: times = np.intersect1d(times, i.coord('time').points)
-            dat = [i.extract(iris.Constraint(time = times)) for i in dat]
-            
+        times = dat[0].coord('time').points
+        times0 = times
+        for i in dat[1:]:
+            times = np.intersect1d(times, i.coord('time').points)
+        if len(times) == 0:
+            for i in range(1,len(dat)):
+                if dat[i].shape[0] > dat[0].shape[0]:
+                    dat[i] = dat[i][range(0, dat[0].shape[0])]
+                    dat[i].coord('time').points = times0
+        if total:                
+            dat = [i.extract(iris.Constraint(time = times)) for i in dat]            
             tot = dat[0].copy()
             for i in dat[1:]: tot.data += i.data
 
