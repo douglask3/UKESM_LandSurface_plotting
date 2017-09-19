@@ -23,6 +23,9 @@ jdir         = Config.Default("FileInfo", "subDir"      )
 fdirSub      = Config.Default("FileInfo", "figSubDir"   )
 stream       = Config.Default("FileInfo", "Stream"      )
 grab         = Config.Default("FileInfo", "grab"        , True,  "boolean")
+startYr      = Config.Default("FileInfo", "StartYr"     , None,  "int")
+endYr        = Config.Default("FileInfo", "EndYr"       , None,  "int")
+MapEndYrsN   = Config.Default("FileInfo", "MapEndYrsN"  , None,  "int")
 running_mean = Config.Default("FileInfo", "running_mean", False, 'boolean')
 namelistDoc  = Config.Default("FileInfo", "namelistDoc" , "")
 namelists    = Config.Default("FileInfo", "namelist"    , [""]    , asList = True)
@@ -54,7 +57,7 @@ for job in jobs:
         newStash = Config.Default(i, "VarStashCodes", asList = True)
         if (newStash is not None): stash.extend(newStash)
     
-    if (grab): grab_data(job, stream, stash, datDiri)    
+    if (grab): grab_data(job, stream, stash, datDiri, startYr, endYr)    
 
 
 	
@@ -71,6 +74,8 @@ for section in Config.sections():
 
     FigTitle      =  Config.Default(section, "FigTitle"     , titleDefault     )
     FigUnits      =  Config.Default(section, "FigUnits"                        )
+    FigMonths     =  Config.Default(section, "FigMonths"    , None             )
+    climatology   =  Config.Default(section, "FigClimatology", False           )
     FigCmap       =  Config.Default(section, "FigCmap"      , "brewer_Greys_09")
     FigdCmap      =  Config.Default(section, "FigdCmap"     , "brewer_Spectral_11")
     FigrCmap      =  Config.Default(section, "FigrCmap"     , "brewer_Spectral_11")
@@ -116,12 +121,14 @@ for section in Config.sections():
 
             print section
 
-            opri = open_plot_return(files, VarStashCodes, VarLbelv, VarPlotN, VarNames, plotNames,
+            opri = open_plot_return(files, VarStashCodes, VarLbelv, 
+                                    VarPlotN, VarNames, plotNames,
                                     FigLon, FigLat, FigUnits,
-                               diff = Diff, ratio = Ratio,
-                               total = Total, totalOnly = TotalOnly,
-                               scale = VarScaling,
-                               change = Change, accumulate = Accumulate)
+                                    diff = Diff, ratio = Ratio,
+                                    total = Total, totalOnly = TotalOnly,
+                                    scale = VarScaling,
+                                    months = FigMonths, climatology = climatology,
+                                    change = Change, accumulate = Accumulate)
             
             if Ratio and (lenNone(VarStashCodes) == 2 or lenNone(VarLbelv) == 2):
                 levels = [VarLevels, VarLevels, VarrLevels]
@@ -133,7 +140,7 @@ for section in Config.sections():
                 cmap   = VarCmap
             if not FigDiffOnly:
                 opri.plot_cubes(FigNamei, FigTitle + ' ' + job, FigTS, FigTSMean, FigTSUnits,
-                                running_mean, levels, cmap)
+                                running_mean, levels, cmap, MapEndYrsN = MapEndYrsN)
             opr.append(opri)
         
         opr[0].diff(opr[1], DiffN, jobs)
@@ -151,7 +158,9 @@ for section in Config.sections():
         ## needs new Levels and Cmap for diff.
         FigName = fdir + '/' + 'diff_' + jobs[1] + '-' + jobs[0] + FigName
         
-        opr[0].plot_cubes(FigName, FigTitle, FigTS, FigTSMean, FigTSUnits, running_mean, levels, cmaps)
+        opr[0].plot_cubes(FigName, FigTitle, FigTS, FigTSMean, FigTSUnits,
+                          running_mean, levels, cmaps, MapEndYrsN = MapEndYrsN)
+
       
          
     else:
@@ -168,6 +177,7 @@ for section in Config.sections():
                                FigLon, FigLat, FigUnits,
                                diff = Diff, total = Total, totalOnly = TotalOnly,
                                scale = VarScaling,
+                               months = FigMonths, climatology = climatology,
                                change = Change, accumulate = Accumulate)
         
         if len(jobs) == 2 and Diff:
@@ -177,7 +187,7 @@ for section in Config.sections():
     
         opr.plot_cubes(FigName, FigTitle, FigTS, FigTSMean,
                        running_mean = running_mean,
-                       levels = VarLevels, cmap = VarCmap)
+                       levels = VarLevels, cmap = VarCmap, MapEndYrsN = MapEndYrsN)
     
     fdirNew         = Config.Default(section, "figsDir"     , fdir0)
 
@@ -185,9 +195,9 @@ for section in Config.sections():
         fdir0 = fdirNew
         fdirNew = fdirSub + '/' + fdirNew
         if fdir[-1]=='/': fdir = fdir[:-1]
-        os.system('convert $(ls -dr figs/' + fdir + '/*) figs/' + fdir + '-' + fdirSub + '.pdf')
+        os.system('convert $(ls -tdr figs/' + fdir + '/*) figs/' + fdir + '-' + fdirSub + '.pdf')
         fdir = fdirNew
         os.system('rm -r figs/' + fdir + '/*')
         
 if fdir[-1]=='/': fdir = fdir[:-1]
-os.system('convert $(ls -dr figs/' + fdir + '/*) figs/' + fdir + '-' + fdirSub + '.pdf')
+os.system('convert $(ls -tdr figs/' + fdir + '/*) figs/' + fdir + '-' + fdirSub + '.pdf')

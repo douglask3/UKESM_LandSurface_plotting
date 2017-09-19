@@ -39,15 +39,26 @@ def cube_TS(cube, running_mean = False, mean = False):
     return cube   
 
 def plot_cube_TS(cubes, running_mean, mean, units):    
-    cubes = [cube_TS(cube, running_mean, mean) for cube in cubes]    
-    
-    for cube in cubes: iplt.plot(cube, label = cube.name())
-    
-    if units is None: units = [cubes[0].units if mean else '']
+    cubes = [cube_TS(cube, running_mean, mean) for cube in cubes]   
+        
+    if units is None: units = [cubes[0].units if mean else ''] 
+
+    index = [i.name()=='diff' for i in cubes]
+    for cube, i in zip(cubes, index): 
+        if not i: iplt.plot(cube, label = cube.name()) 
     
     ncol = min(4 * int(len(cubes)**0.5), len(cubes))
-    plt.legend(loc = 'upper center', bbox_to_anchor = (0.5, -0.05),
+    plt.legend(loc = 'upper right', bbox_to_anchor = (0.5, -0.05),
                fancybox = True, shadow = True, ncol = ncol)
+
+    if any(index):
+        ax2 = plt.gca().twinx()
+    
+        for cube, i in zip(cubes, index): 
+            if i: iplt.plot(cube, '-r', label = cube.name())   
+
+        plt.legend(loc = 'upper left', bbox_to_anchor = (0.5, -0.05),
+               fancybox = True, shadow = True)
 
     plt.grid(True)    
     plt.axis('tight')
