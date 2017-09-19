@@ -39,14 +39,17 @@ class plot_cubes_map(object):
                 iris.coord_categorisation.add_year(cube, 'time')
             except:
                 pass
-            self.endYr = cube.coord('year').points.max()
-            self.startYr = self.endYr - MapEndYrsN
-            def dateRange1(cell): return self.startYr <= cell
-            def dateRange2(cell): return cell <= self.endYr
-            #tConstraint = iris.Constraint(year = dateRange1)
-            cube = cube[dateRange1(cube.coord('year').points)]
-            cube = cube[dateRange2(cube.coord('year').points)]
-            cube.var_name = cube.long_name = cube.var_name + '_' + str(self.startYr) + '-' + str(self.endYr)
+            try:
+                self.endYr = cube.coord('year').points.max()
+                self.startYr = self.endYr - MapEndYrsN
+                def dateRange1(cell): return self.startYr <= cell
+                def dateRange2(cell): return cell <= self.endYr
+                #tConstraint = iris.Constraint(year = dateRange1)
+                cube = cube[dateRange1(cube.coord('year').points)]
+                cube = cube[dateRange2(cube.coord('year').points)]
+                cube.var_name = cube.long_name = cube.var_name + '_' + str(self.startYr) + '-' + str(self.endYr)
+            except:
+                pass
 
         plt.subplot(N, M, n, projection=ccrs.Robinson())
         
