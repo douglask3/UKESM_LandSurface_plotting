@@ -106,6 +106,11 @@ class load_stash(object):
 
     def convert2Climatology(self):
         iris.coord_categorisation.add_month(self.dat, 'time')
+        start = np.where(self.dat.coord('month').points == 'Jan')[0][0]
+        end   = np.where(self.dat.coord('month').points == 'Dec')[0][-1]
+        end   = end + 1
+        self.dat = self.dat[start:end]
+        
         self.dat = self.dat.aggregated_by('month', iris.analysis.MEAN)
         self.dat.remove_coord('month')
      
