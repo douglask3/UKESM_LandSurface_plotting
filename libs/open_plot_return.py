@@ -81,7 +81,7 @@ class open_plot_return(object):
                    scale = None, **kw):
         
         dat = self.load_group_cubes(files, codes, names, lbelvs, VarPlotN, plotNames, **kw)
-       
+        
         for i in range(0, len(dat)):
             if (dat[i].coords()[0].long_name == 'pseudo_level'):
                 print('warning: ' + names[i] + ' has pseudo_levels, which will be meaned')
@@ -94,13 +94,20 @@ class open_plot_return(object):
         
         times = dat[0].coord('time').points
         times0 = times
-        for i in dat[1:]:
-            times = np.intersect1d(times, i.coord('time').points)
+        for i in dat[1:]: times = np.intersect1d(times, i.coord('time').points)
         if len(times) == 0:
             for i in range(1,len(dat)):
-                if dat[i].shape[0] > dat[0].shape[0]:
-                    dat[i] = dat[i][range(0, dat[0].shape[0])]
+                dsi = dat[i].shape[0]
+                ds0 = dat[0].shape[0]
+                if dsi == ds0:
                     dat[i].coord('time').points = times0
+                elif dsi > ds0:
+                    dat[i] = dat[i][range(0, ds0)]
+                    dat[i].coord('time').points = times0
+                else:
+                    dat[i].coord('time').points = times0[0:dsi]
+                    
+                
         if total:                
             dat = [i.extract(iris.Constraint(time = times)) for i in dat]            
             tot = dat[0].copy()
