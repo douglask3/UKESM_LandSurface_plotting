@@ -38,7 +38,7 @@ class open_plot_return(object):
 
         if self.lon is not None: dat = [cube.extract(iris.Constraint(longitude = lonRange)) for cube in dat]
         if self.lat is not None: dat = [cube.extract(iris.Constraint(latitude  = latRange)) for cube in dat]
-
+        
         self.dat = dat
 
    
@@ -49,7 +49,8 @@ class open_plot_return(object):
 
         if len(change) == 1 and len(codes) > 1 : change = change * len(codes)
         if len(accumulate) == 1 and len(codes) > 1 : accumulate = accumulate * len(codes)
-        
+        try:   isinstance(files[0], str)
+        except: browser()
         if isinstance(files[0], str):
  
             if len(codes) == 1 and len(names) > 1 and lbelvs is not None: names = [names]
@@ -206,15 +207,14 @@ class open_plot_return(object):
     def diff_cube(self, cs1, cs2):
             if (cs1.ndim == 3 and cs2.ndim == 3):
                 
-
                 t1 = cs1.coord('time').points
                 t2 = cs2.coord('time').points
                 tmin = np.max([t1.min(), t2.min()])
                 tmax = np.min([t1.max(), t2.max()])
 
                 t = np.unique(np.append(t1, t2))
-                t = t[t < tmax]
-                t = t[t > tmin]
+                t = t[t <= tmax]
+                t = t[t >= tmin]
 
                 cs1 = cs1.interpolate([('time', t)], iris.analysis.Linear())
                 cs2 = cs2.interpolate([('time', t)], iris.analysis.Linear())
