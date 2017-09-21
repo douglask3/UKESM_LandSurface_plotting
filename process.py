@@ -87,6 +87,7 @@ for section in Config.sections():
     plotNames     =  Config.Default(section, "plotNames"    , None                , asList = True)
     VarScaling    =  Config.Default(section, "VarScaling"   , 1.0  , "float"   )
     VarLbelv      =  Config.Default(section, "VarLbelv"     , None,  "int"     )
+    VarSoillv     =  Config.Default(section, "VarSoillv"    , None,  "int"     )
     VarLevels     =  Config.Default(section, "VarLevels"    , None,  "float"   )
     VardLevels    =  Config.Default(section, "VardLevels"   , None,  "float"   )
     VarrLevels    =  Config.Default(section, "VarrLevels"   , VardLevels,  "float"   )
@@ -121,7 +122,7 @@ for section in Config.sections():
 
             print section
 
-            opri = open_plot_return(files, VarStashCodes, VarLbelv, 
+            opri = open_plot_return(files, VarStashCodes, VarLbelv, VarSoillv,
                                     VarPlotN, VarNames, plotNames,
                                     FigLon, FigLat, FigUnits,
                                     diff = Diff, ratio = Ratio,
@@ -173,7 +174,8 @@ for section in Config.sections():
         FigName = fdir + '/' + FigName
         if len(jobs) > 1 and len(VarNames) == 1: VarNames = [VarNames[0] + '-' + i for i in jobs]
 
-        opr = open_plot_return(files, VarStashCodes, VarLbelv, VarPlotN, VarNames, plotNames,
+        opr = open_plot_return(files, VarStashCodes, VarLbelv, VarSoillv,
+                               VarPlotN, VarNames, plotNames,
                                FigLon, FigLat, FigUnits,
                                diff = Diff, total = Total, totalOnly = TotalOnly,
                                scale = VarScaling,

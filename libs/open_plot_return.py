@@ -17,12 +17,13 @@ from   pdb   import set_trace as browser
 #############################################################################
 
 class open_plot_return(object):
-    def __init__(self, files = None, codes = None, lbelv = None, VarPlotN = None, names = None,
+    def __init__(self, files = None, codes = None, lbelv = None, soillvs = None, 
+                 VarPlotN = None, names = None,
                  plotNames = None, lon = None, lat = None,
                  units  = None, dat = None, diff = False, ratio = False, total = False,  **kw):
         
         if (dat is None):
-            dat      = self.load_group(files, codes, lbelv, VarPlotN, names,
+            dat      = self.load_group(files, codes, lbelv, soillvs, VarPlotN, names,
                                        plotNames, diff, ratio, total, units = units, **kw)
         
         def coordRange2List(c, r):
@@ -42,7 +43,7 @@ class open_plot_return(object):
         self.dat = dat
 
    
-    def load_group_cubes(self, files, codes, names, lbelvs, VarPlotN, plotNames,
+    def load_group_cubes(self, files, codes, names, lbelvs, soillvs, VarPlotN, plotNames,
                          change = False, accumulate = False, **kw):
         
         if len(files) == 1 and isinstance(files, list): files = files[0] 
@@ -54,10 +55,10 @@ class open_plot_return(object):
         if isinstance(files[0], str):
  
             if len(codes) == 1 and len(names) > 1 and lbelvs is not None: names = [names]
-            dat = [load_stash(files, code, lbelvs, name, change = ch, accumulate = acc, **kw).dat for code, name, ch, acc in zip(codes, names, change, accumulate)]
+            dat = [load_stash(files, code, lbelvs, soillvs, name, change = ch, accumulate = acc, **kw).dat for code, name, ch, acc in zip(codes, names, change, accumulate)]
             if len(codes) == 1 and lbelvs is not None: dat = dat[0]
         else:           
-            dat = [load_stash(file, codes[0], lbelvs, name, change = change[0], accumulate = accumulate[0], **kw).dat for file, name in zip(files, names)]    
+            dat = [load_stash(file, codes[0], lbelvs, soillvs, name, change = change[0], accumulate = accumulate[0], **kw).dat for file, name in zip(files, names)]    
 
         if VarPlotN is not None:     
             nplts = max(VarPlotN)
@@ -77,11 +78,12 @@ class open_plot_return(object):
         return(dat)
 
 
-    def load_group(self, files, codes, lbelvs, VarPlotN, names, plotNames,
+    def load_group(self, files, codes, lbelvs, soillvs, VarPlotN, names, plotNames,
                    diff = False, ratio = False, total = False, totalOnly = False, 
                    scale = None, **kw):
         
-        dat = self.load_group_cubes(files, codes, names, lbelvs, VarPlotN, plotNames, **kw)
+        dat = self.load_group_cubes(files, codes, names, lbelvs, soillvs, 
+                                    VarPlotN, plotNames, **kw)
         
         for i in range(0, len(dat)):
             if (dat[i].coords()[0].long_name == 'pseudo_level'):

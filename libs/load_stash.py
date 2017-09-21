@@ -8,7 +8,7 @@ from pdb import set_trace as browser
 
 class load_stash(object):
 
-    def __init__(self, files, code, lbelvs, name, units = None,
+    def __init__(self, files, code, lbelvs, soillvs, name, units = None,
                  change = False, accumulate = False, months = None, climatology = False):
         
         self.dat = self.stash_code(files, code)
@@ -16,8 +16,10 @@ class load_stash(object):
         if self.dat is not None:
             if months is not None: self.extractMonths(months)
             elif climatology: self.convert2Climatology()
-
-            if (lbelvs is not None):
+            if soillvs is not None:
+                if isinstance(soillvs, int): self.dat = self.stash_levels(soillvs, 'soil_model_level_number')
+                else: self.dat = [self.stash_levels(soillv, 'soil_model_level_number') for soillv in soillvs]
+            if lbelvs is not None:
                 self.dat = [self.stash_levels(lbelv) for lbelv in lbelvs]
             #stick in function            
             if (isinstance(self.dat, list)):
@@ -75,13 +77,17 @@ class load_stash(object):
                 warnings.warn('unable to open variable: ' + code)
                 pass 
 
-    def stash_levels(self, lbelv):
+    def stash_levels(self, lbelv, coord = 'pseudo_level'):
         print(lbelv)
-        index = np.where(self.dat.coord('pseudo_level').points == lbelv)[0]
-        try:
-            cube  = self.dat[index][0]
-        except:
-            browser()
+        if coord == 'soil_model_level_number':
+            cube = self.dat.extract(iris.Constraint(soil_model_level_number = 3))
+            
+        elif coord == 'pseudo_level':
+            index = np.where(self.dat.coord(coord).points == lbelv)[0]
+            try:
+                cube  = self.dat[index][0]
+            except:
+                browser()
         return cube
 
 
