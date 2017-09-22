@@ -36,7 +36,20 @@ def cube_TS(cube, running_mean = False, mean = False):
     cube = cube.collapsed(['latitude', 'longitude'], collapseFun, weights = grid_areas)
     
     if (running_mean): cube.data = running_N_mean(cube.data, 12)
-    return cube   
+    return cube 
+
+def plot_cube_360(cube, *args, **kw):
+    try:
+        iplt.plot(cube, *args, **kw) 
+    except:
+        iris.coord_categorisation.add_month(cube, 'time')
+        iris.coord_categorisation.add_day_of_month(cube, 'time')
+        day_test = cube.coord('day_of_month').points > 28
+        feb_test = cube.coord('month').points == 'Feb'
+        rm_test  = [not i or not j for i,j in zip(day_test, feb_test)]
+        cube = cube[np.where(rm_test)]
+
+        iplt.plot(cube, *args, **kw)
 
 def plot_cube_TS(cubes, running_mean, mean, units):    
     cubes = [cube_TS(cube, running_mean, mean) for cube in cubes]   
@@ -44,8 +57,9 @@ def plot_cube_TS(cubes, running_mean, mean, units):
     if units is None: units = [cubes[0].units if mean else ''] 
 
     index = [i.name()=='diff' for i in cubes]
-    for cube, i in zip(cubes, index): 
-        if not i: iplt.plot(cube, label = cube.name()) 
+    for cube, i in zip(cubes, index):       
+        if not i: plot_cube_360(cube, label = cube.name())
+         
     
     ncol = min(4 * int(len(cubes)**0.5), len(cubes))
     plt.legend(loc = 'upper right', bbox_to_anchor = (0.5, -0.05),
@@ -55,7 +69,7 @@ def plot_cube_TS(cubes, running_mean, mean, units):
         ax2 = plt.gca().twinx()
     
         for cube, i in zip(cubes, index): 
-            if i: iplt.plot(cube, '-r', label = cube.name())   
+            if i: plot_cube_360(cube, '-r', label = cube.name())   
 
         plt.legend(loc = 'upper left', bbox_to_anchor = (0.5, -0.05),
                fancybox = True, shadow = True)
