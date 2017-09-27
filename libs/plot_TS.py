@@ -33,7 +33,8 @@ def cube_TS(cube, running_mean = False, mean = False):
 
     grid_areas = grid_area(cube)
     collapseFun = iris.analysis.MEAN if mean else iris.analysis.SUM
-    cube = cube.collapsed(['latitude', 'longitude'], collapseFun, weights = grid_areas)
+    try: cube = cube.collapsed(['latitude', 'longitude'], collapseFun, weights = grid_areas)
+    except: pass
     
     if (running_mean): cube.data = running_N_mean(cube.data, 12)
     return cube 
@@ -42,14 +43,19 @@ def plot_cube_360(cube, *args, **kw):
     try:
         iplt.plot(cube, *args, **kw) 
     except:
-        iris.coord_categorisation.add_month(cube, 'time')
-        iris.coord_categorisation.add_day_of_month(cube, 'time')
+        try: iris.coord_categorisation.add_month(cube, 'time')
+        except: pass
+        try: iris.coord_categorisation.add_day_of_month(cube, 'time')
+        except: pass
         day_test = cube.coord('day_of_month').points > 28
         feb_test = cube.coord('month').points == 'Feb'
         rm_test  = [not i or not j for i,j in zip(day_test, feb_test)]
         cube = cube[np.where(rm_test)]
 
-        iplt.plot(cube, *args, **kw)
+        try:
+            iplt.plot(cube, *args, **kw)        
+        except:
+            browser()
 
 def plot_cube_TS(cubes, running_mean, mean, units):    
     cubes = [cube_TS(cube, running_mean, mean) for cube in cubes]   
@@ -60,9 +66,9 @@ def plot_cube_TS(cubes, running_mean, mean, units):
     for cube, i in zip(cubes, index):       
         if not i: plot_cube_360(cube, label = cube.name())
          
-    
+    loc = 'upper right' if any(index) else 'center'
     ncol = min(4 * int(len(cubes)**0.5), len(cubes))
-    plt.legend(loc = 'upper right', bbox_to_anchor = (0.5, -0.05),
+    plt.legend(loc = loc, bbox_to_anchor = (0.5, -0.05),
                fancybox = True, shadow = True, ncol = ncol)
 
     if any(index):

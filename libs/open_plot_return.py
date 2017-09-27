@@ -37,7 +37,14 @@ class open_plot_return(object):
         def lonRange(cell): return self.lon[0] <= cell <= self.lon[1]
         def latRange(cell): return self.lat[0] <= cell <= self.lat[1]
 
-        if self.lon is not None: dat = [cube.extract(iris.Constraint(longitude = lonRange)) for cube in dat]
+        for cube in dat:
+            try: cube.coord('latitude' ).guess_bounds()
+            except: pass
+            try: cube.coord('longitude').guess_bounds()
+            except: pass
+        
+        if self.lon is not None: dat = [cube.extract(iris.Constraint(longitude = lonRange)) for cube in dat] 
+        
         if self.lat is not None: dat = [cube.extract(iris.Constraint(latitude  = latRange)) for cube in dat]
         
         self.dat = dat
@@ -160,12 +167,20 @@ class open_plot_return(object):
 
     def plot_cubes(self, figName, title,
                    TS = True, TSMean = False, TSUnits = None, running_mean= False,
-                   levels = None, cmap = 'brewer_Greys_09', *args, **kw):    
-        N, M = self.plot_setup(TS)
+                   levels = None, cmap = 'brewer_Greys_09', *args, **kw):
         print figName
 
-        plot_cubes_map(self.dat, N, M, levels, cmap = cmap, *args, **kw)        
-    
+        coords = [i.standard_name for i in self.dat[0].dim_coords]
+        latPres = any([i == 'latitude'  for i in coords])
+        lonPres = any([i == 'longitude' for i in coords])
+        ## if not mapable, TS only and redo N,M for no maps (i.e N = 1, M = 1)   
+        if latPres and lonPres: 
+            N, M = self.plot_setup(TS)
+            plot_cubes_map(self.dat, N, M, levels, cmap = cmap, *args, **kw)        
+        else:
+            plt.figure(figsize = (15,  10))
+            N = M = 1
+
         if (TS):
             plt.subplot(N, 1, N)
             plot_cube_TS(self.dat, running_mean, TSMean, TSUnits)      

@@ -56,7 +56,10 @@ class plot_cubes_map(object):
         try: cube = cube.collapsed('time', iris.analysis.MEAN)
         except: pass
         if cube.ndim == 3:
-            cube[0].data = np.nanmean(cube.data, 0)
+            try:
+                cube[0].data = np.nanmean(cube.data, 0)
+            except:
+                browser()
             cube = cube[0]
         
         try:
