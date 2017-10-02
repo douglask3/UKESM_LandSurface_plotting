@@ -29,6 +29,12 @@ MapEndYrsN   = Config.Default("FileInfo", "MapEndYrsN"  , None,  "int")
 running_mean = Config.Default("FileInfo", "running_mean", False, 'boolean')
 namelistDoc  = Config.Default("FileInfo", "namelistDoc" , "")
 namelists    = Config.Default("FileInfo", "namelist"    , [""]    , asList = True)
+Points       = Config.Default("FileInfo", "Points"      , [""]    , "str", asList = True)
+
+if len(Points) > 1:
+    jobs = [jobs[0] for i in range(0,len(Points))]
+else:
+    Points = [Points[0] for i in range(0, len(jobs))]
 
 namelists = [namelistDoc + '/' + i for i in namelists]
 with open('temp/fullNamelist.ini', 'w') as fullNL:
@@ -115,9 +121,12 @@ for section in Config.sections():
     
     if len(jobs) > 1 and (lenNone(VarStashCodes) > 1 or lenNone(VarLbelv) > 1):
         opr = []
-        for job, datD in zip(jobs, datDirs):
+        for job, Point, datD in zip(jobs, Points, datDirs):
             datDirt = datD if Stream is None else datD + Stream + '/'
-            FigNamei = fdir + '/' +  job + '-' + FigName
+            FigNamei = fdir + '/' +  job 
+            if Point != "": FigNamei += '-' + Point
+            FigNamei += '-' + FigName
+            
             files = sort(listdir_path(datDirt))
 
             print section
@@ -129,7 +138,7 @@ for section in Config.sections():
                                     total = Total, totalOnly = TotalOnly,
                                     scale = VarScaling,
                                     months = FigMonths, climatology = climatology,
-                                    change = Change, accumulate = Accumulate)
+                                    change = Change, accumulate = Accumulate, point = Point)
             
             if Ratio and (lenNone(VarStashCodes) == 2 or lenNone(VarLbelv) == 2):
                 levels = [VarLevels, VarLevels, VarrLevels]

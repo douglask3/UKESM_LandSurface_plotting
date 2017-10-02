@@ -20,7 +20,8 @@ class open_plot_return(object):
     def __init__(self, files = None, codes = None, lbelv = None, soillvs = None, 
                  VarPlotN = None, names = None,
                  plotNames = None, lon = None, lat = None,
-                 units  = None, dat = None, diff = False, ratio = False, total = False,  **kw):
+                 units = None, dat = None, diff = False, ratio = False, total = False, 
+                 point = None, **kw):
         
         if (dat is None):
             dat      = self.load_group(files, codes, lbelv, soillvs, VarPlotN, names,
@@ -28,9 +29,16 @@ class open_plot_return(object):
         
         def coordRange2List(c, r):
             if c is not None:
-                if not isinstance(c, list) or len(c) == 1: c = [c, c]
+                if not isinstance(c, list): c = [c, c]
+                elif  len(c) == 1: c = [c[0], c[0]]
             return c
-                
+        
+        if point is not None and point != "":
+            latlon = point.split(';')  
+            latlon = [i.split(':') for i in latlon]
+            lon, lat = [[float(j) for j in i] for i in latlon]
+            for i in dat: i.long_name += '-' + point
+       
         self.lon = coordRange2List(lon, [-180, 180])
         self.lat = coordRange2List(lat, [-90 ,  90])
         
@@ -46,7 +54,12 @@ class open_plot_return(object):
         if self.lon is not None: dat = [cube.extract(iris.Constraint(longitude = lonRange)) for cube in dat] 
         
         if self.lat is not None: dat = [cube.extract(iris.Constraint(latitude  = latRange)) for cube in dat]
-        
+        try:
+            if self.lat[0] == self.lat[1] and self.lon[0] == self.lon[1]:
+                if dat[0].coord('latitude').shape != (1,) or dat[0].coord('longitude').shape != (1,):
+                    dat = [i.collapsed(['latitude', 'longitude'], iris.analysis.MEAN) for i in dat]
+        except:
+            pass
         self.dat = dat
 
    
@@ -237,5 +250,8 @@ class open_plot_return(object):
                 cs2 = cs2.interpolate([('time', t)], iris.analysis.Linear())
 
             cs3 = cs1.copy()
-            cs3.data = cs1.data - cs2.data
+            try:
+                cs3.data = cs1.data - cs2.data
+            except:
+                browser()
             return [cs1, cs2, cs3]
