@@ -38,10 +38,10 @@ class open_plot_return(object):
         if len(accumulate) == 1 and len(codes) > 1 : accumulate = accumulate * len(codes)
         try:   isinstance(files[0], str)
         except: browser()
+        
         if isinstance(files[0], str):
- 
             if len(codes) == 1 and len(names) > 1 and lbelvs is not None: names = [names]
-            dat = [load_stash(files, code, lbelvs, soillvs, name, change = ch, accumulate = acc, **kw).dat for code, name, ch, acc in zip(codes, names, change, accumulate)]
+            dat = [load_stash(files, code, lbelvs, soillvs, name, change = ch, accumulate = acc, point = point, **kw).dat for code, name, ch, acc in zip(codes, names, change, accumulate)]
             if len(codes) == 1 and lbelvs is not None: dat = dat[0]
         else:       
             if point is not None:
@@ -57,7 +57,7 @@ class open_plot_return(object):
             for pn, cube in zip(VarPlotN, dat):
                 try: datOut[pn-1].data += cube.data
                 except: pass
-            
+           
             if plotNames is None: plotNames = [str(i) for i in range(1, nplts + 1)]
             for cube, pname in zip(datOut, plotNames): cube.long_name = cube.var_name = pname
             dat = datOut
@@ -191,7 +191,7 @@ class open_plot_return(object):
             self.dat = self.diff_cube(cs1, cs2)
             
             if names is not None:
-                names.append(names[0] + '-' + names[1])
+                names.append('_diff_' + names[0] + '-' + names[1])
                 for i,j in zip(self.dat, names): i.var_name = i.long_name = j
         else:
             opr = opr.dat

@@ -61,8 +61,8 @@ def plot_cube_TS(cubes, running_mean, mean, units):
     cubes = [cube_TS(cube, running_mean, mean) for cube in cubes]   
         
     if units is None: units = [cubes[0].units if mean else ''] 
-
-    index = [i.name()=='diff' for i in cubes]
+    #browser()
+    index = ['diff' in i.name() for i in cubes]
     for cube, i in zip(cubes, index):       
         if not i: plot_cube_360(cube, label = cube.name())
          
