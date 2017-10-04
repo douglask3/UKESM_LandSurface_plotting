@@ -19,64 +19,18 @@ from   pdb   import set_trace as browser
 class open_plot_return(object):
     def __init__(self, files = None, codes = None, lbelv = None, soillvs = None, 
                  VarPlotN = None, names = None,
-                 plotNames = None, lon = None, lat = None,
-                 units = None, dat = None, diff = False, ratio = False, total = False, 
-                 point = None, point_as_ij = False, **kw):
+                 plotNames = None,
+                 units = None, dat = None, diff = False, ratio = False, total = False, **kw):
         
         if (dat is None):
             dat      = self.load_group(files, codes, lbelv, soillvs, VarPlotN, names,
                                        plotNames, diff, ratio, total, units = units, **kw)
-        
-        def coordRange2List(c, r):
-            if c is not None:
-                if  isinstance(c, list) and  len(c) == 1: c = c[0]
-            return c
-        
-        if point is not None and point != "":
-            latlon = point.split(';')  
-            latlon = [i.split(':') for i in latlon]
-            lon, lat = [[float(j) for j in i] for i in latlon]
-            if point_as_ij:
-                lon = dat[0].coord('longitude').points[lon][0]
-                lat = dat[0].coord('latitude' ).points[lat][0]
-                for i in dat: i.long_name += '-' + 'ijs:'
-            for i in dat: i.long_name += '-' + point
-       
-        self.lon = coordRange2List(lon, [-180, 180])
-        self.lat = coordRange2List(lat, [-90 ,  90])
-        
-        if isinstance(self.lon, list):
-            def lonRange(cell): return self.lon[0] <= cell <= self.lon[1]
-        else:
-            def lonRange(cell): return cell == self.lon
-
-        if isinstance(self.lat, list):
-            def latRange(cell): return self.lat[0] <= cell <= self.lat[1]
-        else:
-            def latRange(cell): return cell == self.lat
-
-        
-
-        for cube in dat:
-            try: cube.coord('latitude' ).guess_bounds()
-            except: pass
-            try: cube.coord('longitude').guess_bounds()
-            except: pass
-        
-        if self.lon is not None: dat = [cube.extract(iris.Constraint(longitude = lonRange)) for cube in dat] 
-        
-        if self.lat is not None: dat = [cube.extract(iris.Constraint(latitude  = latRange)) for cube in dat]
-        try:
-            if self.lat[0] == self.lat[1] and self.lon[0] == self.lon[1]:
-                if dat[0].coord('latitude').shape != (1,) or dat[0].coord('longitude').shape != (1,):
-                    dat = [i.collapsed(['latitude', 'longitude'], iris.analysis.MEAN) for i in dat]
-        except:
-            pass
         self.dat = dat
 
    
     def load_group_cubes(self, files, codes, names, lbelvs, soillvs, VarPlotN, plotNames,
-                         change = False, accumulate = False, **kw):
+                         change = False, accumulate = False, 
+                         point = None, **kw):
         
         if len(files) == 1 and isinstance(files, list): files = files[0] 
 
@@ -89,8 +43,11 @@ class open_plot_return(object):
             if len(codes) == 1 and len(names) > 1 and lbelvs is not None: names = [names]
             dat = [load_stash(files, code, lbelvs, soillvs, name, change = ch, accumulate = acc, **kw).dat for code, name, ch, acc in zip(codes, names, change, accumulate)]
             if len(codes) == 1 and lbelvs is not None: dat = dat[0]
-        else:           
-            dat = [load_stash(file, codes[0], lbelvs, soillvs, name, change = change[0], accumulate = accumulate[0], **kw).dat for file, name in zip(files, names)]    
+        else:       
+            if point is not None:
+                if isinstance(point, list) and len(point) != len(files): point = point[0]
+            if not isinstance(point, list): point = [point for i in range(0,len(files))]
+            dat = [load_stash(file, codes[0], lbelvs, soillvs, name, change = change[0], accumulate = accumulate[0], point = pnt, **kw).dat for file, name, pnt in zip(files, names, point)]    
 
         if VarPlotN is not None:     
             nplts = max(VarPlotN)

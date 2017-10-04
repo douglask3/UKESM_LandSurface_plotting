@@ -9,7 +9,8 @@ from pdb import set_trace as browser
 class load_stash(object):
 
     def __init__(self, files, code, lbelvs, soillvs, name, units = None,
-                 change = False, accumulate = False, months = None, climatology = False):
+                 change = False, accumulate = False, months = None, climatology = False,
+                 lon = None, lat = None, point = None, point_as_ij = False):
         
         self.dat = self.stash_code(files, code)
         
@@ -47,6 +48,51 @@ class load_stash(object):
                 self.dat = self.dat[1:]
                 self.dat.var_name  = varname
                 self.dat.long_name = longname
+
+            self.coordRange(lon, lat, point, point_as_ij)
+
+    def coordRange(self, lon = None, lat = None, point = None, point_as_ij = False):
+        def coordRange2List(c, r):
+            if c is not None:
+                if  isinstance(c, list) and  len(c) == 1: c = c[0]
+            return c    
+  
+        if point is not None and point != "":
+            latlon = point.split(';')  
+            latlon = [i.split(':') for i in latlon]
+            lon, lat = [[float(j) for j in i] for i in latlon]
+            if point_as_ij:                
+                lon = self.dat.coord('longitude').points[lon][0]
+                lat = self.dat.coord('latitude' ).points[lat][0]
+                self.dat.long_name += '-' + 'ijs:'
+            self.dat.long_name += '-' + point
+       
+        self.lon = coordRange2List(lon, [-180, 180])
+        self.lat = coordRange2List(lat, [-90 ,  90])
+
+        if isinstance(self.lon, list):
+            def lonRange(cell): return self.lon[0] <= cell <= self.lon[1]
+        else:
+            def lonRange(cell): return cell == self.lon
+
+        if isinstance(self.lat, list):
+            def latRange(cell): return self.lat[0] <= cell <= self.lat[1]
+        else:
+            def latRange(cell): return cell == self.lat
+
+        try: self.dat.coord('latitude' ).guess_bounds()
+        except: pass
+        try: self.dat.coord('longitude').guess_bounds() 
+        except: pass
+        
+        if self.lon is not None: self.dat = self.dat.extract(iris.Constraint(longitude = lonRange))
+        if self.lat is not None: self.dat = self.dat.extract(iris.Constraint(latitude  = latRange))
+        try:
+            if self.lat[0] == self.lat[1] and self.lon[0] == self.lon[1]:
+                if dat[0].coord('latitude').shape != (1,) or dat[0].coord('longitude').shape != (1,):
+                    dat = [i.collapsed(['latitude', 'longitude'], iris.analysis.MEAN) for i in dat]
+        except:
+            pass
                 
     def stash_code(self, files, code):    
         try:

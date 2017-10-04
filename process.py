@@ -134,12 +134,13 @@ for section in Config.sections():
 
             opri = open_plot_return(files, VarStashCodes, VarLbelv, VarSoillv,
                                     VarPlotN, VarNames, plotNames,
-                                    FigLon, FigLat, FigUnits,
+                                    FigUnits,
                                     diff = Diff, ratio = Ratio,
                                     total = Total, totalOnly = TotalOnly,
                                     scale = VarScaling,
                                     months = FigMonths, climatology = climatology,
                                     change = Change, accumulate = Accumulate, point = Point,
+                                    lon = FigLon, lat = FigLat,
                                     point_as_ij = Points_as_ij)
             
             if Ratio and (lenNone(VarStashCodes) == 2 or lenNone(VarLbelv) == 2):
@@ -187,11 +188,13 @@ for section in Config.sections():
 
         opr = open_plot_return(files, VarStashCodes, VarLbelv, VarSoillv,
                                VarPlotN, VarNames, plotNames,
-                               FigLon, FigLat, FigUnits,
+                               FigUnits,
                                diff = Diff, total = Total, totalOnly = TotalOnly,
                                scale = VarScaling,
                                months = FigMonths, climatology = climatology,
-                               change = Change, accumulate = Accumulate)
+                               change = Change, accumulate = Accumulate,
+                               lon = FigLon, lat = FigLat,
+                               point = Points, point_as_ij = Points_as_ij)
         
         if len(jobs) == 2 and Diff:
             VarLevels = [VarLevels, VarLevels, VardLevels]
