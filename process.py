@@ -30,6 +30,7 @@ running_mean = Config.Default("FileInfo", "running_mean", False, 'boolean')
 namelistDoc  = Config.Default("FileInfo", "namelistDoc" , "")
 namelists    = Config.Default("FileInfo", "namelist"    , [""]    , asList = True)
 Points       = Config.Default("FileInfo", "Points"      , [""]    , "str", asList = True)
+Points_as_ij = Config.Default("FileInfo", "Points_as_ij"         , False   , "boolean")
 
 if len(Points) > 1:
     jobs = [jobs[0] for i in range(0,len(Points))]
@@ -138,7 +139,8 @@ for section in Config.sections():
                                     total = Total, totalOnly = TotalOnly,
                                     scale = VarScaling,
                                     months = FigMonths, climatology = climatology,
-                                    change = Change, accumulate = Accumulate, point = Point)
+                                    change = Change, accumulate = Accumulate, point = Point,
+                                    point_as_ij = Points_as_ij)
             
             if Ratio and (lenNone(VarStashCodes) == 2 or lenNone(VarLbelv) == 2):
                 levels = [VarLevels, VarLevels, VarrLevels]

@@ -21,7 +21,7 @@ class open_plot_return(object):
                  VarPlotN = None, names = None,
                  plotNames = None, lon = None, lat = None,
                  units = None, dat = None, diff = False, ratio = False, total = False, 
-                 point = None, **kw):
+                 point = None, point_as_ij = False, **kw):
         
         if (dat is None):
             dat      = self.load_group(files, codes, lbelv, soillvs, VarPlotN, names,
@@ -29,21 +29,33 @@ class open_plot_return(object):
         
         def coordRange2List(c, r):
             if c is not None:
-                if not isinstance(c, list): c = [c, c]
-                elif  len(c) == 1: c = [c[0], c[0]]
+                if  isinstance(c, list) and  len(c) == 1: c = c[0]
             return c
         
         if point is not None and point != "":
             latlon = point.split(';')  
             latlon = [i.split(':') for i in latlon]
             lon, lat = [[float(j) for j in i] for i in latlon]
+            if point_as_ij:
+                lon = dat[0].coord('longitude').points[lon][0]
+                lat = dat[0].coord('latitude' ).points[lat][0]
+                for i in dat: i.long_name += '-' + 'ijs:'
             for i in dat: i.long_name += '-' + point
        
         self.lon = coordRange2List(lon, [-180, 180])
         self.lat = coordRange2List(lat, [-90 ,  90])
         
-        def lonRange(cell): return self.lon[0] <= cell <= self.lon[1]
-        def latRange(cell): return self.lat[0] <= cell <= self.lat[1]
+        if isinstance(self.lon, list):
+            def lonRange(cell): return self.lon[0] <= cell <= self.lon[1]
+        else:
+            def lonRange(cell): return cell == self.lon
+
+        if isinstance(self.lat, list):
+            def latRange(cell): return self.lat[0] <= cell <= self.lat[1]
+        else:
+            def latRange(cell): return cell == self.lat
+
+        
 
         for cube in dat:
             try: cube.coord('latitude' ).guess_bounds()
