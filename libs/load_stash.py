@@ -62,7 +62,6 @@ class load_stash(object):
             if months is not None: self.extractMonths(months)
             elif climatology: self.convert2Climatology()
             if soillvs is not None:
-                browser()
                 if isinstance(soillvs, int): self.dat = self.stash_levels(soillvs, 'soil_model_level_number')
                 else: self.dat = [self.stash_levels(soillv, 'soil_model_level_number') for soillv in soillvs]
             if lbelvs is not None:
