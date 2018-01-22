@@ -52,10 +52,10 @@ class coordRangeExtract(object):
 
 class load_stash(object):
 
-    def __init__(self, files, code, lbelvs, soillvs, name, units = None,
+    def __init__(self, files, code, lbelvs, lbelvCoord, soillvs, name, units = None,
                  change = False, accumulate = False, months = None, climatology = False,
                  lon = None, lat = None, point = None, point_as_ij = False):
-        
+       
         self.dat = self.stash_code(files, code)
         
         if self.dat is not None:
@@ -65,7 +65,8 @@ class load_stash(object):
                 if isinstance(soillvs, int): self.dat = self.stash_levels(soillvs, 'soil_model_level_number')
                 else: self.dat = [self.stash_levels(soillv, 'soil_model_level_number') for soillv in soillvs]
             if lbelvs is not None:
-                self.dat = [self.stash_levels(lbelv) for lbelv in lbelvs]
+                self.dat = [self.stash_levels(lbelv, lbelvCoord) for lbelv in lbelvs]
+                if len(lbelvs) == 1: self.dat = self.dat[0]
             #stick in function            
             if (isinstance(self.dat, list)):
                 for i in range(0, len(self.dat)):
@@ -132,16 +133,24 @@ class load_stash(object):
                 pass 
 
     def stash_levels(self, lbelv, coord = 'pseudo_level'):
-        print(lbelv)
-        if coord == 'soil_model_level_number':
-            cube = self.dat.extract(iris.Constraint(soil_model_level_number = 3))
+        #browser()
             
-        elif coord == 'pseudo_level':
+        if coord is None or coord == 'pseudo_level':
             index = np.where(self.dat.coord(coord).points == lbelv)[0]
             try:
                 cube  = self.dat[index][0]
             except:
                 browser()
+
+        elif coord == 'soil_model_level_number':
+            cube = self.dat.extract(iris.Constraint(soil_model_level_number = 3))
+
+        elif coord == 'pressure':
+            index = np.abs(self.dat.coord(coord).points - lbelv)
+            index = np.where(index == index.min())[0][0]
+            index = self.dat.coord(coord).points[index]
+            cube = self.dat.extract(iris.Constraint(pressure = index))
+            
         return cube
 
 

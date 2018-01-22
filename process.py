@@ -93,10 +93,11 @@ for section in Config.sections():
     VarNames      =  Config.Default(section, "VarNames"     , VarNames_default    , asList = True)
     plotNames     =  Config.Default(section, "plotNames"    , None                , asList = True)
     VarScaling    =  Config.Default(section, "VarScaling"   , 1.0  , "float"   )
-    VarLbelv      =  Config.Default(section, "VarLbelv"     , None,  "int"     )
+    VarLbelv      =  Config.Default(section, "VarLbelv"     , None,  "float", asList = True     )
     VarSoillv     =  Config.Default(section, "VarSoillv"    , None,  "int"     )
     VarLevels     =  Config.Default(section, "VarLevels"    , None,  "float"   )
     VardLevels    =  Config.Default(section, "VardLevels"   , None,  "float"   )
+    LevelCoord    =  Config.Default(section, "LevelCoord"    , None             )
     VarrLevels    =  Config.Default(section, "VarrLevels"   , VardLevels,  "float"   )
     VarPlotN      =  Config.Default(section, "VarPlotN"     , None,  "int"        )
     VarCmap       =  Config.Default(section, "VarCmap"      , [FigCmap]           , asList = True)
@@ -132,7 +133,7 @@ for section in Config.sections():
 
             print section
 
-            opri = open_plot_return(files, VarStashCodes, VarLbelv, VarSoillv,
+            opri = open_plot_return(files, VarStashCodes, VarLbelv, LevelCoord, VarSoillv,
                                     VarPlotN, VarNames, plotNames,
                                     FigUnits,
                                     diff = Diff, ratio = Ratio,
@@ -186,7 +187,7 @@ for section in Config.sections():
         FigName = fdir + '/' + FigName
         if len(jobs) > 1 and len(VarNames) == 1: VarNames = [VarNames[0] + '-' + i for i in jobs]
 
-        opr = open_plot_return(files, VarStashCodes, VarLbelv, VarSoillv,
+        opr = open_plot_return(files, VarStashCodes, VarLbelv, LevelCoord, VarSoillv,
                                VarPlotN, VarNames, plotNames,
                                FigUnits,
                                diff = Diff, total = Total, totalOnly = TotalOnly,

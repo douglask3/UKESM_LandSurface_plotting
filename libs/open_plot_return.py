@@ -17,18 +17,19 @@ from   pdb   import set_trace as browser
 #############################################################################
 
 class open_plot_return(object):
-    def __init__(self, files = None, codes = None, lbelv = None, soillvs = None, 
+    def __init__(self, files = None, codes = None, lbelv = None, lbelvCoord = None,
+                 soillvs = None, 
                  VarPlotN = None, names = None,
                  plotNames = None,
                  units = None, dat = None, diff = False, ratio = False, total = False, **kw):
         
         if (dat is None):
-            dat      = self.load_group(files, codes, lbelv, soillvs, VarPlotN, names,
+            dat      = self.load_group(files, codes, lbelv, lbelvCoord, soillvs, VarPlotN, names,
                                        plotNames, diff, ratio, total, units = units, **kw)
         self.dat = dat
-
+        
    
-    def load_group_cubes(self, files, codes, names, lbelvs, soillvs, VarPlotN, plotNames,
+    def load_group_cubes(self, files, codes, names, lbelvs, lbelvCoord, soillvs, VarPlotN, plotNames,
                          change = False, accumulate = False, 
                          point = None, **kw):
         
@@ -41,14 +42,14 @@ class open_plot_return(object):
         
         if isinstance(files[0], str):
             if len(codes) == 1 and len(names) > 1 and lbelvs is not None: names = [names]
-            dat = [load_stash(files, code, lbelvs, soillvs, name, change = ch, accumulate = acc, point = point, **kw).dat for code, name, ch, acc in zip(codes, names, change, accumulate)]
+            dat = [load_stash(files, code, lbelvs, lbelvCoord, soillvs, name, change = ch, accumulate = acc, point = point, **kw).dat for code, name, ch, acc in zip(codes, names, change, accumulate)]
             if len(codes) == 1 and lbelvs is not None: dat = dat[0]
         else:       
             if point is not None:
                 if isinstance(point, list) and len(point) != len(files): point = point[0]
             if not isinstance(point, list): point = [point for i in range(0,len(files))]
-            dat = [load_stash(file, codes[0], lbelvs, soillvs, name, change = change[0], accumulate = accumulate[0], point = pnt, **kw).dat for file, name, pnt in zip(files, names, point)]    
-
+            dat = [load_stash(file, codes[0], lbelvs, lbelvCoord, soillvs, name, change = change[0], accumulate = accumulate[0], point = pnt, **kw).dat for file, name, pnt in zip(files, names, point)]    
+        
         if VarPlotN is not None:     
             nplts = max(VarPlotN)
             datOut = dat[0].copy()
@@ -67,14 +68,15 @@ class open_plot_return(object):
         return(dat)
 
 
-    def load_group(self, files, codes, lbelvs, soillvs, VarPlotN, names, plotNames,
+    def load_group(self, files, codes, lbelvs, lbelvCoord, soillvs, VarPlotN, names, plotNames,
                    diff = False, ratio = False, total = False, totalOnly = False, 
                    scale = None, **kw):
         
-        dat = self.load_group_cubes(files, codes, names, lbelvs, soillvs, 
+        dat = self.load_group_cubes(files, codes, names, lbelvs, lbelvCoord, soillvs, 
                                     VarPlotN, plotNames, **kw)
         
         for i in range(0, len(dat)):
+            if isinstance(dat[i], list) and len(dat[i]) == 1: dat[i] = dat[i][0] 
             if (dat[i].coords()[0].long_name == 'pseudo_level'):
                 print('warning: ' + names[i] + ' has pseudo_levels, which will be meaned')
                 dat[i] = dat[i].collapsed('pseudo_level', iris.analysis.MEAN)             
