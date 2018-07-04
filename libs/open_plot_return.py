@@ -38,7 +38,7 @@ class open_plot_return(object):
 
         if self.lon is not None: dat = [cube.extract(iris.Constraint(longitude = lonRange)) for cube in dat]
         if self.lat is not None: dat = [cube.extract(iris.Constraint(latitude  = latRange)) for cube in dat]
-
+        
         self.dat = dat
 
    
@@ -78,7 +78,7 @@ class open_plot_return(object):
 
     def load_group(self, files, codes, lbelvs, VarPlotN, names, plotNames,
                    diff = False, ratio = False, total = False, totalOnly = False, 
-                   scale = None, **kw):
+                   scale = None, alignTimes = True, **kw):
         
         dat = self.load_group_cubes(files, codes, names, lbelvs, VarPlotN, plotNames, **kw)
         
@@ -92,20 +92,21 @@ class open_plot_return(object):
                 sc = scale[i] if type(scale) is list else scale
                 dat[i].data = dat[i].data * sc   
         
-        times = dat[0].coord('time').points
-        times0 = times
-        for i in dat[1:]: times = np.intersect1d(times, i.coord('time').points)
-        if len(times) == 0:
-            for i in range(1,len(dat)):
-                dsi = dat[i].shape[0]
-                ds0 = dat[0].shape[0]
-                if dsi == ds0:
-                    dat[i].coord('time').points = times0
-                elif dsi > ds0:
-                    dat[i] = dat[i][range(0, ds0)]
-                    dat[i].coord('time').points = times0
-                else:
-                    dat[i].coord('time').points = times0[0:dsi]
+        if alignTimes:
+            times = dat[0].coord('time').points
+            times0 = times
+            for i in dat[1:]: times = np.intersect1d(times, i.coord('time').points)
+            if len(times) == 0:
+                for i in range(1,len(dat)):
+                    dsi = dat[i].shape[0]
+                    ds0 = dat[0].shape[0]
+                    if dsi == ds0:
+                        dat[i].coord('time').points = times0
+                    elif dsi > ds0:
+                        dat[i] = dat[i][range(0, ds0)]
+                        dat[i].coord('time').points = times0
+                    else:
+                        dat[i].coord('time').points = times0[0:dsi]
                     
                 
         if total:                
@@ -120,7 +121,7 @@ class open_plot_return(object):
                 dat = [tot]
             else:  
                 dat.append(tot)
-
+        
         elif (diff and len(dat) == 2):
             try:                       
                 dat = self.diff_cube(dat[0], dat[1])
@@ -157,7 +158,7 @@ class open_plot_return(object):
 
     def plot_cubes(self, figName, title,
                    TS = True, TSMean = False, TSUnits = None, running_mean= False,
-                   levels = None, cmap = 'brewer_Greys_09', *args, **kw):    
+                   diffTS = True, levels = None, cmap = 'brewer_Greys_09', *args, **kw):    
         N, M = self.plot_setup(TS)
         print figName
 
@@ -165,7 +166,7 @@ class open_plot_return(object):
     
         if (TS):
             plt.subplot(N, 1, N)
-            plot_cube_TS(self.dat, running_mean, TSMean, TSUnits)      
+            plot_cube_TS(self.dat, running_mean, diffTS, TSMean, TSUnits)      
     
         plt.gcf().suptitle(title, fontsize=18, fontweight='bold')
 
@@ -204,6 +205,7 @@ class open_plot_return(object):
 
 
     def diff_cube(self, cs1, cs2):
+            
             if (cs1.ndim == 3 and cs2.ndim == 3):
                 
 
@@ -216,9 +218,9 @@ class open_plot_return(object):
                 t = t[t < tmax]
                 t = t[t > tmin]
 
-                cs1 = cs1.interpolate([('time', t)], iris.analysis.Linear())
-                cs2 = cs2.interpolate([('time', t)], iris.analysis.Linear())
+                cs1i = cs1.copy().interpolate([('time', t)], iris.analysis.Linear())
+                cs2i = cs2.copy().interpolate([('time', t)], iris.analysis.Linear())
 
-            cs3 = cs1.copy()
-            cs3.data = cs1.data - cs2.data
+            cs3 = cs1i.copy()
+            cs3.data = cs1i.data - cs2i.data
             return [cs1, cs2, cs3]

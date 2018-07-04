@@ -16,11 +16,15 @@ def grid_area(cube):
 ### Running mean/Moving average
 def running_N_mean(l, N):
     sum = 0
-    result = list( 0 for x in l)
-
+    
+    result = list( np.float('NAN') for x in l)
+    
     for i in range( 0, N ):
-        sum = sum + l[i]
-        result[i] = sum / (i+1)
+        try:
+            sum = sum + l[i]
+        except:
+            browser()
+        #result[i] = sum / (i+1)
 
     for i in range( N, len(l) ):
         sum = sum - l[i-N] + l[i]
@@ -38,7 +42,8 @@ def cube_TS(cube, running_mean = False, mean = False):
     if (running_mean): cube.data = running_N_mean(cube.data, 12)
     return cube   
 
-def plot_cube_TS(cubes, running_mean, mean, units):    
+def plot_cube_TS(cubes, running_mean, diff, mean, units):   
+     
     cubes = [cube_TS(cube, running_mean, mean) for cube in cubes]   
         
     if units is None: units = [cubes[0].units if mean else ''] 
@@ -51,7 +56,7 @@ def plot_cube_TS(cubes, running_mean, mean, units):
     plt.legend(loc = 'upper right', bbox_to_anchor = (0.5, -0.05),
                fancybox = True, shadow = True, ncol = ncol)
 
-    if any(index):
+    if any(index) and diff:
         ax2 = plt.gca().twinx()
     
         for cube, i in zip(cubes, index): 
