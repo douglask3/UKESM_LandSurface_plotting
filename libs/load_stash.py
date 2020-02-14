@@ -11,8 +11,8 @@ class coordRangeExtract(object):
             if c is not None:
                 if  isinstance(c, list) and  len(c) == 1: c = c[0]
             return c    
-  
-        if point is not None and point != "":
+        
+        if point is not None and point != "" and point != [""]:
             latlon = point.split(';')  
             latlon = [i.split(':') for i in latlon]
             lon, lat = [[float(j) for j in i] for i in latlon]
@@ -134,8 +134,8 @@ class load_stash(object):
 
     def stash_levels(self, lbelv, coord = 'pseudo_level'):
         #browser()
-            
-        if coord is None or coord == 'pseudo_level':
+        if coord is None:  coord = 'pseudo_level'   
+        if coord == 'pseudo_level':
             index = np.where(self.dat.coord(coord).points == lbelv)[0]
             try:
                 cube  = self.dat[index][0]
