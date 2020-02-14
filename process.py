@@ -215,6 +215,12 @@ for section in Config.sections():
         os.system('convert $(ls -tdr figs/' + fdir + '/*) figs/' + fdir + '-' + fdirSub + '.pdf')
         fdir = fdirNew
         os.system('rm -r figs/' + fdir + '/*')
-        
+ 
+    nc_fname = datDiri + '/ncdf/' +  FigName + '.nc'
+    makeDir(nc_fname)
+    try:
+        iris.save(iris.cube.CubeList(opr.dat), nc_fname) 
+    except:
+         pass
 if fdir[-1]=='/': fdir = fdir[:-1]
 os.system('convert $(ls -tdr figs/' + fdir + '/*) figs/' + fdir + '-' + fdirSub + '.pdf')
