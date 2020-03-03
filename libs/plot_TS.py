@@ -36,6 +36,10 @@ def cube_TS(cube, running_mean = False, mean = False):
     try: cube = cube.collapsed(['latitude', 'longitude'], collapseFun, weights = grid_areas)
     except: pass
     
+    period_mean = str(np.round(cube.collapsed('time', collapseFun).data, 3))
+    try: cube.long_name += ' (' +  period_mean + ' ' + str(cube.units) + ')'
+    except: pass
+
     if (running_mean): cube.data = running_N_mean(cube.data, 12)
     return cube 
 
