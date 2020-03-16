@@ -54,9 +54,9 @@ class load_stash(object):
 
     def __init__(self, files, code, lbelvs, soillvs, name, units = None,
                  change = False, accumulate = False, months = None, climatology = False,
-                 lon = None, lat = None, point = None, point_as_ij = False):
+                 lon = None, lat = None, point = None, point_as_ij = False, **kw):
         
-        self.dat = self.stash_code(files, code)
+        self.dat = self.stash_code(files, code, **kw)
         
         if self.dat is not None:
             if months is not None: self.extractMonths(months)
@@ -100,9 +100,9 @@ class load_stash(object):
                     self.dat = coordRangeExtract(self.dat, lon, lat, point, point_as_ij).dat
                 except:
                     browser()
-
-                
-    def stash_code(self, files, code):    
+            
+    
+    def stash_code(self, files, code, mask):    
         try:
             codeNum = int(code)
             if   (len(code) == 5): code = 'm01s' + code[0:2] + 'i' + code[2:]
@@ -122,14 +122,17 @@ class load_stash(object):
                 nt = np.where(nt == np.min(nt))[0][0]
             else:
                 nt = 0
-            return cube[nt]
+            cube = cube[nt]
         except:    
             try: 
                 cube = iris.load(files, stash_constraint)[0]
-                return cube
             except:
                 warnings.warn('unable to open variable: ' + code)
-                pass 
+                return 
+        if mask is not None: 
+            for lay in range(cube.shape[0]): cube.data[lay][mask.data[144::-1].mask] = np.nan
+        return(cube)
+        
 
     def stash_levels(self, lbelv, coord = 'pseudo_level'):
         print(lbelv)

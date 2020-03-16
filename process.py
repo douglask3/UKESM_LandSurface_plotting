@@ -117,9 +117,14 @@ for section in Config.sections():
     
     Change        =  Config.Default(section, "VarChange"    , [FigChange], "boolean" )
     Accumulate    =  Config.Default(section, "VarAccumulate", [FigAccumulate], "boolean" )
-    
+    MaskFile      =  Config.Default(section, "MaskFile", None)
+    MaskVal       =  Config.Default(section, "MaskVal", None, "float")
     def lenNone(x): return(0 if x is None else len(x))
-    
+    if MaskFile is None:
+        mask = None
+    else:
+        mask = iris.load(MaskFile)[0]
+        if MaskVal is not None: browser()
     if len(jobs) > 1 and (lenNone(VarStashCodes) > 1 or lenNone(VarLbelv) > 1):
         opr = []
         for job, Point, datD in zip(jobs, Points, datDirs):
@@ -131,7 +136,6 @@ for section in Config.sections():
             files = sort(listdir_path(datDirt))
 
             print section
-
             opri = open_plot_return(files, VarStashCodes, VarLbelv, VarSoillv,
                                     VarPlotN, VarNames, plotNames,
                                     FigUnits,
@@ -140,8 +144,8 @@ for section in Config.sections():
                                     scale = VarScaling,
                                     months = FigMonths, climatology = climatology,
                                     change = Change, accumulate = Accumulate, point = Point,
-                                    lon = FigLon, lat = FigLat,
-                                    point_as_ij = Points_as_ij)
+                                    lNAon = FigLon, lat = FigLat,
+                                    point_as_ij = Points_as_ij, mask = mask)
             
             if Ratio and (lenNone(VarStashCodes) == 2 or lenNone(VarLbelv) == 2):
                 levels = [VarLevels, VarLevels, VarrLevels]
@@ -194,7 +198,7 @@ for section in Config.sections():
                                months = FigMonths, climatology = climatology,
                                change = Change, accumulate = Accumulate,
                                lon = FigLon, lat = FigLat,
-                               point = Points, point_as_ij = Points_as_ij)
+                               point = Points, point_as_ij = Points_as_ij, mask = mask)
         
         if len(jobs) == 2 and Diff:
             VarLevels = [VarLevels, VarLevels, VardLevels]

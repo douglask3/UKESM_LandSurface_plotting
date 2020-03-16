@@ -86,6 +86,7 @@ class open_plot_return(object):
         
         times = dat[0].coord('time').points
         times0 = times
+
         for i in dat[1:]: times = np.intersect1d(times, i.coord('time').points)
         if len(times) == 0:
             for i in range(1,len(dat)):
@@ -97,6 +98,7 @@ class open_plot_return(object):
                     dat[i] = dat[i][range(0, ds0)]
                     dat[i].coord('time').points = times0
                 else:
+
                     dat[i].coord('time').points = times0[0:dsi]
                     
                 
