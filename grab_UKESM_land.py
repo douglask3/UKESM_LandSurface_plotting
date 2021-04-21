@@ -1,16 +1,17 @@
 import os
 jobs = ['u-bc179', 'u-bc292', 'u-bc370', 'u-bb075', 'u-az513', 'u-az515', 'u-az524', 'u-bb277', 'u-bc470', 'u-bd288', 'u-bd416', 'u-bd483']
+jobs = ['u-by791', 'u-bz502', 'u-bz897', 'u-ca360', 'u-ca811', 'u-cb799']
 figSubDirs = jobs
 
 fileInfos = " \n\
-subDir: LandEvaluation/ \n\
+subDir: LandEvaluation_UKESM1.1/ \n\
 grab: True \n\
 Stream: apm \n\
 StartYr:1980 \n\
 EndYr: 2014  \n\
 MapEndYrsN: 1  \n\
 namelistDoc: namelists/ \n\
-namelist: monitor_lai.ini\n"
+namelist: monitor_carbon.ini, monitor_lai.ini\n"
 
 def generate_namelist(job, figSubDir):
     fileInfo = "[FileInfo]\njob: " + job + "\nfigSubDir: " + figSubDir + fileInfos
