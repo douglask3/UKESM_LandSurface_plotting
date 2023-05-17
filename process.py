@@ -131,7 +131,7 @@ for section in Config.sections():
             
             files = sort(listdir_path(datDirt))
 
-            print section
+            print(section)
 
             opri = open_plot_return(files, VarStashCodes, VarLbelv, LevelCoord, VarSoillv,
                                     VarPlotN, VarNames, plotNames,
@@ -181,8 +181,8 @@ for section in Config.sections():
         ## find files
         files = []
         for datD in datDirs:
-	    datDirt = datD if Stream is None else datD + Stream + '/'        
-	    files.append(sort(listdir_path(datDirt)))
+            datDirt = datD if Stream is None else datD + Stream + '/'
+            files.append(sort(listdir_path(datDirt)))
         
         FigName = fdir + '/' + FigName
         if len(jobs) > 1 and len(VarNames) == 1: VarNames = [VarNames[0] + '-' + i for i in jobs]
