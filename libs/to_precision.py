@@ -6,7 +6,7 @@ def to_precision(x,p):
     Based on the webkit javascript implementation taken from here:
     https://code.google.com/p/webkit-mirror/source/browse/JavaScriptCore/kjs/number_object.cpp
     """
-
+    x0 = x
     x = float(x)
 
     if x == 0.:

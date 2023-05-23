@@ -1,10 +1,10 @@
-import ConfigParser
+import configparser
 import json
 import sys
 
 class ConfigGet(object):
     def __init__(self, fname):  
-        self.Config = ConfigParser.ConfigParser()
+        self.Config = configparser.ConfigParser()
         self.Config.read(fname)
     
     def sections(self, *args, **kw):

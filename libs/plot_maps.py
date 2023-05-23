@@ -9,8 +9,8 @@ import iris.quickplot as qplt
 import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm
 from matplotlib.ticker import MaxNLocator
-from to_precision import *
-from pdb import set_trace as browser
+from libs.to_precision import *
+from pdb import set_trace
 from numpy import inf
 
 class plot_cubes_map(object):
@@ -67,6 +67,7 @@ class plot_cubes_map(object):
         except:
             cmap = plt.get_cmap(cmap[0])
         levels, extend = self.hist_limits(cube, levels, 7)
+        if len(levels) > 9: levels = levels[0:8]
     
         if extend =='max': 
             norm = BoundaryNorm(levels, ncolors=cmap.N - 1)
@@ -84,15 +85,22 @@ class plot_cubes_map(object):
     
 
     def hist_limits(self,dat, lims = None, nlims = 5, symmetrical = True):
+        if nlims > 9: nlims = 9
         def select_lims(prec, nlims):
             nlims0 = nlims
             for p in range(0,100 - nlims0):
                 nlims = nlims0 + p
-                lims  = np.percentile(dat.data[~np.isnan(dat.data)], range(0, 100, 100/nlims))
+                
+                lims  = np.percentile((dat.data[~np.isnan(dat.data)]).compressed(), 
+                                      range(0, 100,int( 100/nlims)))
+               
             
                 if (lims[0]==-inf): lims.pop(0)
-            
-                lims = [to_precision(i, prec) for i in lims]
+                
+                try:
+                    lims = [to_precision(i, prec) for i in lims] 
+                except:
+                    set_trace()
                 lims = np.unique(lims)
                 if (len(lims) >= nlims0): break
             return lims

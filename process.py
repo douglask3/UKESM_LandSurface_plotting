@@ -1,4 +1,4 @@
-import ConfigParser
+import configparser
 import json
 import sys, os
 from   pdb   import set_trace as browser
@@ -217,6 +217,7 @@ for section in Config.sections():
         os.system('rm -r figs/' + fdir + '/*')
  
     nc_fname = datDiri + '/ncdf/' +  FigName + '.nc'
+    
     makeDir(nc_fname)
     try:
         iris.save(iris.cube.CubeList(opr.dat), nc_fname) 

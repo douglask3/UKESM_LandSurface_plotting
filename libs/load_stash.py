@@ -70,13 +70,13 @@ class load_stash(object):
             #stick in function            
             if (isinstance(self.dat, list)):
                 for i in range(0, len(self.dat)):
-                    print "opening: " + name[i]
+                    print("opening: " + name[i])
                     self.dat[i].var_name      = name[i]
                     self.dat[i].long_name     = name[i]
                     self.dat[i].standard_name = None
                     if (units is not None): self.dat[i].units = units
             else: 
-                print "opening: " + name
+                print("opening: " + name)
                 self.dat.var_name      = name
                 self.dat.long_name     = name
                 self.dat.standard_name = None

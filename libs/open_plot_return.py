@@ -152,7 +152,7 @@ class open_plot_return(object):
     def plot_cubes(self, figName, title,
                    TS = True, TSMean = False, TSUnits = None, running_mean= False,
                    levels = None, cmap = 'brewer_Greys_09', *args, **kw):
-        print figName
+        print(figName)
 
         coords = [i.standard_name for i in self.dat[0].dim_coords]
         latPres = any([i == 'latitude'  for i in coords])
